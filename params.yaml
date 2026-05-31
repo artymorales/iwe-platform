@@ -1,0 +1,25 @@
+# IWE Parameters
+# Персистентные параметры, влияющие на поведение протоколов и скриптов.
+
+# === Пути ===
+workspace_dir: ~/iwe-platform
+strategy_dir: ~/ds-strategy
+knowledge_dir: ~/ds-knowledge-index
+
+# === Модели ===
+default_model: ds/deepseek-v4-flash
+heavy_model: ds/deepseek-v4-pro
+
+# === Протоколы ===
+day_open_enabled: true
+day_close_enabled: true
+week_close_enabled: true
+
+# === Capture ===
+# manual — только по команде
+# propose — агент предлагает, пользователь подтверждает
+# auto — агент пишет без подтверждения
+capture_autonomy: propose
+
+# === Расширения ===
+extensions_dir: extensions
