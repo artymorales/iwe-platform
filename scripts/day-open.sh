@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # day-open.sh — Открытие дня в IWE
+# Создаёт DayPlan (формальный план дня с РП, слотами, бюджетом).
+# В strategy_day — не создаёт DayPlan (план дня в WeekPlan).
 # Запуск: bash ~/iwe-platform/scripts/day-open.sh
 set -euo pipefail
 
@@ -9,11 +11,22 @@ KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/ds-knowledge-index}"
 DATE=$(date +%Y-%m-%d)
 DAY_OF_WEEK=$(date +%u)  # 1=Пн, 7=Вс
 WEEK_NUM=$(date +%V)
+DAY_NAME=$(date +%A)
 
 echo "=== Открытие дня: $DATE ==="
 echo ""
 
-# 0. Проверка версии FMT-шаблона
+# 0. Проверка: strategy_day?
+RHYTHM_CFG="$IWE_DIR/memory/day-rhythm-config.yaml"
+STRATEGY_DAY="monday"
+if [ -f "$RHYTHM_CFG" ]; then
+  STRATEGY_DAY=$(grep 'strategy_day:' "$RHYTHM_CFG" | awk '{print $2}' | tr -d '"' || echo "monday")
+fi
+
+echo "  Ритм: strategy_day=$STRATEGY_DAY, сегодня=$(date +%A)"
+echo ""
+
+# 0b. Проверка версии FMT-шаблона
 if [ -f "$IWE_DIR/params.yaml" ]; then
   FMT_CHECK=$(grep 'fmt_check_on_open:' "$IWE_DIR/params.yaml" | grep -c 'true' || true)
   if [ "$FMT_CHECK" -gt 0 ]; then
@@ -39,47 +52,74 @@ done
 echo ""
 
 # 2. Проверка: был ли Day Open сегодня?
-if [ -d "$STRATEGY_DIR/current" ]; then
-  LAST_OPEN=$(ls -t "$STRATEGY_DIR/current" 2>/dev/null | head -1)
-  if [[ "$LAST_OPEN" == *"$DATE"* ]]; then
-    echo "  ✓ Day Open уже был сегодня ($LAST_OPEN)"
-    echo ""
-  fi
+mkdir -p "$STRATEGY_DIR/current"
+EXISTING_DAYPLAN=$(ls -t "$STRATEGY_DIR/current/dayplan-${DATE}*.md" 2>/dev/null | head -1)
+if [ -n "$EXISTING_DAYPLAN" ]; then
+  echo "  ✓ DayPlan уже существует: $(basename "$EXISTING_DAYPLAN")"
+  echo ""
+  echo "=== День открыт (повторно) ==="
+  exit 0
 fi
 
-# 3. Создание заметки дня
-mkdir -p "$STRATEGY_DIR/current"
-DAYNOTE="$STRATEGY_DIR/current/day-${DATE}.md"
-if [ ! -f "$DAYNOTE" ]; then
-  cat > "$DAYNOTE" << EOF
-# День: $DATE (Неделя $WEEK_NUM)
+# 3. Проверка WeekPlan на текущую неделю
+# Ищем weekplan-W{N} или week-W{N}
+WEEKPLANS=$(ls -t "$STRATEGY_DIR/current/" 2>/dev/null | grep -iE "weekplan|week-" | head -3 || true)
+HAS_WEEKPLAN=false
+if [ -n "$WEEKPLANS" ]; then
+  HAS_WEEKPLAN=true
+  echo "  ✓ Найден WeekPlan:"
+  echo "$WEEKPLANS" | sed 's/^/    /'
+fi
+echo ""
 
-## Цели на сегодня
-1. 
+# 4. Определяем: strategy_day или обычный день?
+LOWER_STRAT_DAY=$(echo "$STRATEGY_DAY" | tr '[:upper:]' '[:lower:]')
+LOWER_TODAY=$(date +%A | tr '[:upper:]' '[:lower:]')
 
-## Заметки
+IS_STRATEGY_DAY=false
+if [ "$LOWER_STRAT_DAY" = "$LOWER_TODAY" ]; then
+  IS_STRATEGY_DAY=true
+fi
 
+if [ "$IS_STRATEGY_DAY" = true ]; then
+  echo "  📋 Сегодня strategy_day ($STRATEGY_DAY) — DayPlan НЕ создаётся"
+  echo "     План дня уже встроен в WeekPlan (секция «План на понедельник»)"
+  echo "     Запустите: стратегическая сессия"
+  echo ""
+  echo "=== День открыт (strategy_day) ==="
+  exit 0
+fi
 
-## Итог дня (заполняется в day-close)
+# 5. Создание DayPlan
+echo "--- Создание DayPlan ---"
+TEMPLATE="$IWE_DIR/memory/templates/dayplan-template.md"
+DAYPLAN="$STRATEGY_DIR/current/dayplan-${DATE}.md"
+
+if [ -f "$TEMPLATE" ]; then
+  # Подстановка переменных через envsubst или sed
+  WEEK_LABEL="W$WEEK_NUM"
+  sed -e "s/{{DATE}}/$DATE/g" \
+      -e "s/{{WEEK_NUM}}/$WEEK_LABEL/g" \
+      "$TEMPLATE" > "$DAYPLAN"
+  echo "  ✓ Создан DayPlan: $(basename "$DAYPLAN")"
+else
+  # Fallback: простой шаблон
+  cat > "$DAYPLAN" << EOF
+# DayPlan: $DATE (Неделя $WEEK_NUM)
+
+## Задачи на сегодня
+| # | РП | Задача | Артефакт | Бюджет | Статус |
+|---|-----|--------|----------|--------|--------|
+| 1 | | | | | ☐ |
+
+## Итог дня (заполняется в Day Close)
 
 EOF
-  echo "  ✓ Создан: $DAYNOTE"
-else
-  echo "  · Заметка дня уже существует"
+  echo "  ✓ Создан DayPlan (fallback): $(basename "$DAYPLAN")"
 fi
 echo ""
 
-# 4. Проверка: есть ли открытый WeekPlan?
-WEEKPLAN="$STRATEGY_DIR/current/week-${WEEK_NUM}-${DATE}.md"
-if [ ! -f "$WEEKPLAN" ]; then
-  echo "  ⚠ Нет WeekPlan для текущей недели"
-  echo "    Создать: bash ~/iwe-platform/scripts/week-close.sh"
-else
-  echo "  ✓ WeekPlan: $(basename "$WEEKPLAN")"
-fi
-echo ""
-
-# 5. Проверка dirty-репозиториев
+# 6. Проверка dirty-репозиториев
 echo "--- Проверка незакоммиченных изменений ---"
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then

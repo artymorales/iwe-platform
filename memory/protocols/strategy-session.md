@@ -57,8 +57,14 @@ source: FMT v0.34.1 (strategy-session/SKILL.md + roles/strategist/)
 
 ### Шаг 1. Контекст (перед началом)
 
+Запустить:
+```bash
+bash ~/iwe-platform/scripts/active-wp-sweep.sh
+```
+
 Прочитать:
 - `~/iwe-platform/memory/day-rhythm-config.yaml` (strategy_day, настройки)
+- `~/iwe-platform/memory/verification-classes.md` (классы верификации для РП)
 - `~/ds-strategy/docs/Dissatisfactions.md` (активные НЭП)
 - `~/ds-strategy/docs/Strategy.md` (фокус месяца, результаты, R)
 - `~/ds-strategy/docs/WP-REGISTRY.md` (все РП, статусы)
@@ -91,7 +97,7 @@ source: FMT v0.34.1 (strategy-session/SKILL.md + roles/strategist/)
 ### Шаг 6. Формирование WeekPlan (20–30 мин)
 
 - Выбрать РП из результатов месяца + carry-over
-- Для каждого: бюджет, день недели, модель (flash/pro)
+- Для каждого: бюджет, день недели, **класс верификации** (trivial/closed-loop/open-loop/problem-framing), модель (flash/pro)
 - Утвердить ТОС недели
 - Записать в `~/ds-strategy/current/weekplan-W{N}.md`
 
@@ -101,10 +107,11 @@ source: FMT v0.34.1 (strategy-session/SKILL.md + roles/strategist/)
 - Запросить корректировки
 - После утверждения: закоммитить всё (Dissatisfactions, Strategy, WeekPlan, WP-REGISTRY)
 
-### Шаг 8. DayPlan (если сегодня пн)
+### Шаг 8. DayPlan (если сегодня strategy_day)
 
-- Сформировать DayPlan на сегодня: выбрать РП из WeekPlan на понедельник
+- Сформировать DayPlan на сегодня: выбрать РП из WeekPlan на сегодня
 - Записать в `~/ds-strategy/current/dayplan-YYYY-MM-DD.md`
+- Для каждого РП указать класс верификации
 - Убедиться, что бюджет на день укладывается в ~5-6 рабочих часов
 
 ---

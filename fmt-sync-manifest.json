@@ -96,6 +96,27 @@
       "note": "Адаптирован: сокращён до 17 пунктов (T1-T17), убрана верификация Haiku, адаптированы пути"
     },
     {
+      "local": "memory/verification-classes.md",
+      "fmt_source": "CLAUDE.md § 5.1b",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Создан: 4 класса (trivial/closed-loop/open-loop/problem-framing), ритуал объявления, переключение модели"
+    },
+    {
+      "local": "memory/templates/dayplan-template.md",
+      "fmt_source": "memory/protocol-open.md + templates",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: слоты дня, задачи с РП, итог дня с заделом на завтра"
+    },
+    {
+      "local": "scripts/active-wp-sweep.sh",
+      "fmt_source": "scripts/active-wp-sweep.sh",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: сканирует REGISTRY + inbox + commits 7d, пути под нашу структуру"
+    },
+    {
       "local": "memory/repo-type-rules.md",
       "fmt_source": "memory/repo-type-rules.md",
       "fmt_version_synced": "0.34.1",
