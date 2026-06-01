@@ -1,0 +1,21 @@
+# Day Rhythm Configuration (адаптировано из FMT v0.34.1)
+# Управляет ритмом: день стратегической сессии, расписание автоматических проверок.
+# Читается при Day Open и Strategy Session.
+
+day_open:
+  strategy_day: monday          # День стратегической сессии (monday..sunday)
+  self_dev_slot: 1              # Слот для саморазвития (всегда первый по дефолту)
+  self_dev_missing_alert: true  # Предупреждать, если нет саморазвития в DayPlan
+  interactive: false            # false = Day Open одним блоком. true = промежуточные вопросы.
+
+video:
+  enabled: false                # Видео-скан отключён (нет Zoom-записей)
+  directories: []
+  extensions: [mp4, mov, webm, m4a, mp3]
+  stale_days: 3
+  transcripts_dir: transcripts/
+
+budget_spread:
+  enabled: true                 # Размазывать недельный бюджет РП по оставшимся дням
+  threshold_h: 4                # Только РП с недельным бюджетом ≥ этого значения
+  rounding: 0.5                 # Округление дневного слота до ближайшего N часов

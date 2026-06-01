@@ -1,0 +1,221 @@
+{
+  "fmt_version": "0.34.1",
+  "fmt_source": "TserenTserenov/FMT-exocortex-template",
+  "fmt_branch": "main",
+  "synced_at": "2026-06-01",
+  "synced_files": ["memory/day-rhythm-config.yaml", "memory/protocols/strategy-session.md", "~/ds-strategy/docs/Session Agenda.md"],
+  "local_fmt_dir": "~/iwe-platform",
+
+  "files": [
+    {
+      "local": "memory/day-rhythm-config.yaml",
+      "fmt_source": "memory/day-rhythm-config.yaml",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: вычищены Claude-специфичные поля, оставлены strategy_day, budget_spread"
+    },
+    {
+      "local": "memory/protocols/strategy-session.md",
+      "fmt_sources": [
+        ".claude/skills/strategy-session/SKILL.md",
+        "roles/strategist/prompts/strategy-session.md",
+        "roles/strategist/prompts/strategy-session-weekly.md"
+      ],
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: объединены initial+weekly flow из SKILL.md и промптов Стратега, упрощён под pi agent"
+    },
+    {
+      "local": "~/ds-strategy/docs/Session Agenda.md",
+      "fmt_source": "seed/strategy/docs/Session Agenda.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Перенесён: шаблон повестки с адаптацией путей"
+    },
+    {
+      "local": "memory/protocols/open.md",
+      "fmt_source": "memory/protocol-open.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Адаптирован: пути заменены, CLAUDE.md → AGENTS.md"
+    },
+    {
+      "local": "memory/protocols/close.md",
+      "fmt_source": "memory/protocol-close.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Адаптирован: пути заменены, T-чеклист выделен в отдельный файл"
+    },
+    {
+      "local": "memory/protocols/work.md",
+      "fmt_source": "memory/protocol-work.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Адаптирован: пути заменены, inline-capture"
+    },
+    {
+      "local": "memory/distinctions.md",
+      "fmt_source": "memory/hard-distinctions.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Сокращён: только активные различения, без полного списка из FMT"
+    },
+    {
+      "local": "params.yaml",
+      "fmt_source": "params.yaml",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: добавлены модели Omniroute, удалены Claude-специфичные ключи"
+    },
+    {
+      "local": "scripts/day-open.sh",
+      "fmt_source": "scripts/day-open-scaffold.sh",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: добавлены проверка версии FMT, pull репозиториев"
+    },
+    {
+      "local": "scripts/day-close.sh",
+      "fmt_source": "scripts/day-close.sh",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: без launchd-зависимостей"
+    },
+    {
+      "local": "scripts/week-close.sh",
+      "fmt_source": "scripts/week-close.sh",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: без launchd-зависимостей"
+    },
+    {
+      "local": "memory/t-checklist.md",
+      "fmt_source": "memory/t-checklist.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: сокращён до 17 пунктов (T1-T17), убрана верификация Haiku, адаптированы пути"
+    },
+    {
+      "local": "memory/repo-type-rules.md",
+      "fmt_source": "memory/repo-type-rules.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: сокращён до наших 3 репозиториев (Base, DS/governance, DS/knowledge), убраны FPF/SPF/ZP"
+    },
+    {
+      "local": "scripts/archive-wp.sh",
+      "fmt_source": "scripts/archive-done-wp.sh",
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Адаптирован: упрощён, без enabled-WP трекера, пути под нашу структуру"
+    },
+    {
+      "local": "AGENTS.md",
+      "fmt_sources": [
+        "CLAUDE.md",
+        ".claude/skills/verify/SKILL.md",
+        ".claude/skills/archgate/SKILL.md",
+        ".claude/skills/strategy-session/SKILL.md",
+        ".claude/skills/wp-new/SKILL.md",
+        ".claude/skills/day-open/SKILL.md",
+        ".claude/skills/day-close/SKILL.md",
+        ".claude/skills/week-close/SKILL.md"
+      ],
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Сборка из 8+ источников FMT с адаптацией под Pi agent. Расширен: ритм, стратегическая сессия"
+    },
+    {
+      "local": "~/ds-strategy/AGENTS.md",
+      "fmt_sources": [
+        "CLAUDE.md (секция репозиториев)",
+        "seed/strategy/CLAUDE.md"
+      ],
+      "fmt_version_synced": "0.34.1",
+      "status": "blue",
+      "note": "Сокращён: только governance-специфичные правила"
+    },
+    {
+      "local": "~/ds-strategy/docs/Strategy.md",
+      "fmt_source": "seed/strategy/docs/Strategy.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Перенесён с минимальной адаптацией путей"
+    },
+    {
+      "local": "~/ds-strategy/docs/Dissatisfactions.md",
+      "fmt_source": "seed/strategy/docs/Dissatisfactions.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Создан: 6 активных НЭП"
+    },
+    {
+      "local": "~/ds-strategy/docs/WP-REGISTRY.md",
+      "fmt_source": "seed/strategy/docs/WP-REGISTRY.md",
+      "fmt_version_synced": "0.34.1",
+      "status": "white",
+      "note": "Заполнен: 8 РП (WP-1–WP-8)"
+    }
+  ],
+
+  "missing_white": [
+    "memory/navigation.md",
+    "memory/checklists.md",
+    "memory/sota-reference.md",
+    "docs/LEARNING-PATH.md"
+  ],
+
+  "ignored": [
+    ".claude/hooks/*",
+    ".claude/detectors/*",
+    ".claude/lib/*",
+    ".claude/scripts/*",
+    ".claude/agents/*",
+    ".claude/settings.json",
+    ".claude/runtime-overlay.yaml",
+    ".claude/rules/*",
+    ".claude/skills/* (контент адаптирован в AGENTS.md)",
+    ".claude/config/*",
+    ".claude/parity-contract.yaml",
+    ".claude/sync-manifest.yaml",
+    "roles/*",
+    ".mcp.json",
+    ".github/*",
+    ".githooks/*",
+    "setup/* (кроме build-runtime.sh)",
+    "extensions/*",
+    "pack-templates/*",
+    "docs/AGENT-FAULT-PROCESS.md",
+    "docs/DATA-POLICY.md",
+    "docs/IWE-HELP.md",
+    "docs/PACK-CREATION.md",
+    "docs/PLATFORM-COMPAT.md",
+    "docs/PORTABILITY.md",
+    "docs/QUICK-START.md",
+    "docs/RELEASE-PROCESS.md",
+    "docs/SCRIPT-PROMOTION.md",
+    "docs/SETUP-GUIDE.md",
+    "docs/principles-vs-skills.md",
+    "docs/inter-agent-handoff.md",
+    "docs/adr/*",
+    "docs/migrations/*",
+    "docs/onboarding/*",
+    "docs/use-cases/*",
+    "memory/MEMORY.md",
+    "memory/dry-run-contract.md",
+    "memory/fpf-reference.md",
+    "memory/hooks-design.md",
+    "memory/r-questionnaire.md",
+    "memory/roles.md",
+    "memory/routing-vocab.md",
+    "memory/templates-dayplan.md",
+    "update.sh",
+    "setup.sh",
+    "CHANGELOG.md",
+    "ONTOLOGY.md",
+    "REPO-TYPE.md",
+    "README.md"
+  ],
+
+  "deprecated_map": {}
+}

@@ -5,6 +5,7 @@ set -euo pipefail
 
 IWE_DIR="${IWE_DIR:-$HOME/iwe-platform}"
 STRATEGY_DIR="${STRATEGY_DIR:-$HOME/ds-strategy}"
+KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/ds-knowledge-index}"
 DATE=$(date +%Y-%m-%d)
 DAY_OF_WEEK=$(date +%u)  # 1=Пн, 7=Вс
 WEEK_NUM=$(date +%V)
@@ -12,13 +13,27 @@ WEEK_NUM=$(date +%V)
 echo "=== Открытие дня: $DATE ==="
 echo ""
 
+# 0. Проверка версии FMT-шаблона
+if [ -f "$IWE_DIR/params.yaml" ]; then
+  FMT_CHECK=$(grep 'fmt_check_on_open:' "$IWE_DIR/params.yaml" | grep -c 'true' || true)
+  if [ "$FMT_CHECK" -gt 0 ]; then
+    CHECK_RESULT=0
+    bash "$IWE_DIR/scripts/fmt-version-check.sh" --quiet --notify 2>/dev/null && CHECK_RESULT=$? || CHECK_RESULT=$?
+    if [ "$CHECK_RESULT" -eq 1 ]; then
+      NEW_VER=$(cat "$IWE_DIR/.fmt-update-available" 2>/dev/null | head -1 || echo "?")
+      echo "  📦 Доступна новая версия FMT: $NEW_VER"
+      echo "    bash $IWE_DIR/scripts/fmt-diff.sh — просмотр изменений"
+    fi
+  fi
+fi
+echo ""
+
 # 1. Pull репозиториев
 echo "--- Синхронизация репозиториев ---"
-for repo in "$IWE_DIR" "$STRATEGY_DIR"; do
+for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
     echo "  Pull: $repo"
-    cd "$repo"
-    git pull --rebase 2>/dev/null && echo "    OK" || echo "    Пропущен (dirty/net)"
+    (cd "$repo" && git pull --rebase 2>/dev/null && echo "    OK") || echo "    Пропущен (dirty/net)"
   fi
 done
 echo ""
@@ -66,17 +81,16 @@ echo ""
 
 # 5. Проверка dirty-репозиториев
 echo "--- Проверка незакоммиченных изменений ---"
-for repo in "$IWE_DIR" "$STRATEGY_DIR"; do
+for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
-    cd "$repo"
-    DIRTY=$(git status --short 2>/dev/null | wc -l)
+    DIRTY=$(cd "$repo" && git status --short 2>/dev/null | wc -l)
     if [ "$DIRTY" -gt 0 ]; then
-      echo "  ⚠ $repo: $DIRTY незакоммиченных файлов"
+      echo "  ⚠ $(basename "$repo"): $DIRTY незакоммиченных файлов"
     else
-      echo "  ✓ $repo: чисто"
-    }
+      echo "  ✓ $(basename "$repo"): чисто"
+    fi
   fi
 done
 
 echo ""
-echo "=== День открыт ==="
+echo "=== День открыт ==="}]}
