@@ -174,6 +174,9 @@ export function register(api: any) {
   api.onEvent(
     { componentType: "sidebar-item", descendantId: "rh-capture" },
     async (_e: any, ctx: any) => {
+      try {
+        ctx.pi.notify("📝 Захват знания...");
+      } catch (_) {}
       await ctx.pi.prompt(
         `Помоги зафиксировать знание (Capture-to-Pack).
 
@@ -266,14 +269,17 @@ bash ${IWE_DIR}/scripts/fmt-version-check.sh
       const items = [
         "day-open", "self-dev", "day-close", "week-close", "strategy"
       ];
-      for (const item of items) {
-        ctx.setState(`/iwe/rhythm/${today()}/${item}`, "todo");
+      try {
+        for (const item of items) {
+          ctx.setState(`/iwe/rhythm/${today()}/${item}`, "todo");
+        }
+        ctx.pi.notify("🔄 Статус ритма сброшен");
+        await ctx.pi.prompt(
+          `Статус ритма на сегодня сброшен. Начинаем день заново. С чего начнём?`
+        );
+      } catch (e) {
+        ctx.pi.notify("⚠️ Ошибка: " + (e?.message || e));
       }
-      await ctx.pi.prompt(
-        `Статус ритма на сегодня сброшен.
-
-Начинаем день заново. С чего начнём?`
-      );
     }
   );
 }
