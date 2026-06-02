@@ -16,13 +16,6 @@ export function register(api: any) {
     title: "IWE · Скиллы",
     items: [
       { id: "iwe-wp-new", label: "📦 WP New" },
-    ],
-  });
-
-  api.registerSidebarSection({
-    id: "iwe-reviews",
-    title: "IWE · Обзоры",
-    items: [
       { id: "iwe-wp-sweep", label: "📊 WP Sweep" },
     ],
   });
