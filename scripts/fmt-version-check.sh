@@ -4,10 +4,11 @@
 # Использование:
 #   bash fmt-version-check.sh          # Проверить и вывести статус
 #   bash fmt-version-check.sh --quiet  # Только код возврата (0=актуально, 1=есть новая, 2=ошибка)
-#   bash fmt-version-check.sh --notify # Записать результат в .fmt-update-available
+#   bash fmt-version-check.sh --notify # Записать результат в .fmt-update-available (+ ченжлог)
 #
-# Встраивается в day-open.sh. Сравнивает последний git-тег upstream с версией в манифесте.
-# Не требует GitHub Releases — использует git ls-remote --tags.
+# Встраивается в day-open.sh. Парсит CHANGELOG.md (Keep a Changelog) из upstream main.
+# GitHub Releases — нет, git-теги — устаревшие (последний 0.29.6). CHANGELOG.md — единственный
+# актуальный источник версий.
 
 set -euo pipefail
 
@@ -45,25 +46,47 @@ with open('$MANIFEST') as f:
 print(data.get('fmt_source', 'TserenTserenov/FMT-exocortex-template'))
 " 2>/dev/null || echo "TserenTserenov/FMT-exocortex-template")
 
-# --- Получение последнего тега через git ls-remote ---
-# FMT использует git-теги (v0.34.1, v0.35.3...), а не GitHub Releases.
-# Сравниваем по тегам, сортируем версионно.
+# --- Получение CHANGELOG.md из upstream main ---
+# FMT не имеет GitHub Releases. git-теги застряли на 0.29.6.
+# Актуальная версия — первый заголовок ## [X.Y.Z] в CHANGELOG.md на main.
 
+CHANGELOG_URL="https://raw.githubusercontent.com/$FMT_SOURCE/main/CHANGELOG.md"
 LATEST_VERSION=""
-LATEST_TAG=""
 ERROR_MSG=""
+CHANGELOG_ENTRY=""
 
-GIT_TAGS=$(git ls-remote --tags "https://github.com/$FMT_SOURCE.git" 2>/dev/null || true)
+CHANGELOG=$(curl -sSfL "$CHANGELOG_URL" 2>/dev/null || true)
 
-if [ -n "$GIT_TAGS" ]; then
-  LATEST_TAG=$(echo "$GIT_TAGS" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' | sort -V | tail -1 || echo "")
-  if [ -n "$LATEST_TAG" ]; then
-    LATEST_VERSION="${LATEST_TAG#v}"
+if [ -z "$CHANGELOG" ]; then
+  ERROR_MSG="Не удалось загрузить CHANGELOG.md (нет сети? неверный URL?)"
+else
+  # Парсим первый заголовок ## [X.Y.Z] — это последняя версия
+  LATEST_VERSION=$(echo "$CHANGELOG" | grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' | head -1 | sed 's/^## \[//;s/\]//')
+
+  # Извлекаем ченжлог-запись для этой версии (от заголовка до следующего ## [...] или ---)
+  if $NOTIFY && [ -n "$LATEST_VERSION" ]; then
+    # Сохраняем ченжлог во временный файл, чтобы Python не ломался на спецсимволах
+    CHANGELOG_TMP=$(mktemp "/tmp/fmt-changelog-$$-XXXXXX")
+    echo "$CHANGELOG" > "$CHANGELOG_TMP"
+    CHANGELOG_ENTRY=$(python3 -c "
+import re
+
+with open('$CHANGELOG_TMP') as f:
+    text = f.read()
+
+# Ищем блок от заголовка нужной версии до следующего заголовка ## [X.Y.Z]
+pattern = r'## \[' + re.escape('$LATEST_VERSION') + r'\].*?(?=\n## \[[0-9]+\.[0-9]+\.[0-9]+\]|\n---|\Z)'
+m = re.search(pattern, text, re.DOTALL)
+if m:
+    entry = m.group(0).strip()
+    print(entry)
+" 2>/dev/null || true)
+    rm -f "$CHANGELOG_TMP"
   fi
 fi
 
-if [ -z "$LATEST_TAG" ]; then
-  ERROR_MSG="Не удалось получить теги из git ls-remote (нет сети? неверный репозиторий?)"
+if [ -z "$LATEST_VERSION" ] && [ -z "$ERROR_MSG" ]; then
+  ERROR_MSG="Не удалось извлечь версию из CHANGELOG.md (изменился формат?)"
 fi
 
 # --- Сравнение версий ---
@@ -83,14 +106,33 @@ if [ "$HIGHER" = "$LATEST_VERSION" ] && [ "$CURRENT_VERSION" != "$LATEST_VERSION
     echo "   Или:     bash $SCRIPT_DIR/update.sh --version=v$LATEST_VERSION"
   }
   if $NOTIFY; then
-    echo "v$LATEST_VERSION" > "$IWE_DIR/.fmt-update-available"
-    echo "fmt_source=$FMT_SOURCE" >> "$IWE_DIR/.fmt-update-available"
+    {
+      echo "v$LATEST_VERSION"
+      echo "current=v$CURRENT_VERSION"
+      echo "fmt_source=$FMT_SOURCE"
+    } > "$IWE_DIR/.fmt-update-available"
+
+    # Сохраняем ченжлог отдельно
+    if [ -n "$CHANGELOG_ENTRY" ]; then
+      {
+        echo "# Что нового в FMT v$LATEST_VERSION"
+        echo ""
+        echo "$CHANGELOG_ENTRY"
+      } > "$IWE_DIR/.fmt-update-changelog.md"
+    fi
+
+    # Выводим ченжлог, если есть
+    if [ -n "$CHANGELOG_ENTRY" ]; then
+      echo ""
+      echo "$CHANGELOG_ENTRY"
+      echo ""
+    fi
   fi
   exit 1
 else
-  $QUIET || echo "✓ FMT актуален: v$CURRENT_VERSION"
+  $QUIET || echo "✓ FMT актуален: v$CURRENT_VERSION (upstream: v$LATEST_VERSION)"
   if $NOTIFY && [ -f "$IWE_DIR/.fmt-update-available" ]; then
-    rm -f "$IWE_DIR/.fmt-update-available"
+    rm -f "$IWE_DIR/.fmt-update-available" "$IWE_DIR/.fmt-update-changelog.md" 2>/dev/null || true
   fi
   exit 0
 fi

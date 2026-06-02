@@ -37,6 +37,9 @@ if [ -f "$IWE_DIR/params.yaml" ]; then
         NEW_VER=$(cat "$IWE_DIR/.fmt-update-available" 2>/dev/null | head -1 || echo "?")
         echo "  📦 Доступна новая версия FMT: $NEW_VER"
         echo "    bash $IWE_DIR/scripts/fmt-diff.sh — просмотр изменений"
+        if [ -f "$IWE_DIR/.fmt-update-changelog.md" ]; then
+          echo "    Ченжлог сохранён: $IWE_DIR/.fmt-update-changelog.md"
+        fi
         ;;
       2)
         echo "  ⚠ Не удалось проверить версию FMT (ошибка сети или конфига)"
