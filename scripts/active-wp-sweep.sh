@@ -6,6 +6,7 @@ set -euo pipefail
 
 IWE_DIR="${IWE_DIR:-$HOME/iwe-platform}"
 STRATEGY_DIR="${STRATEGY_DIR:-$HOME/ds-strategy}"
+KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/ds-knowledge-index}"
 
 REGISTRY="$STRATEGY_DIR/docs/WP-REGISTRY.md"
 INBOX="$STRATEGY_DIR/inbox"
@@ -74,7 +75,7 @@ echo ""
 
 # --- 3. Текущий WeekPlan ---
 echo "--- Текущий WeekPlan ---"
-WEEKPLAN_FILE=$(ls -t "$CURRENT/weekplan-*.md" 2>/dev/null | head -1)
+WEEKPLAN_FILE=$(ls -t "$CURRENT"/weekplan-*.md 2>/dev/null | head -1 || true)
 if [ -n "$WEEKPLAN_FILE" ]; then
   echo "  📋 $(basename "$WEEKPLAN_FILE")"
   # Показать секцию задач
