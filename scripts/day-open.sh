@@ -32,11 +32,17 @@ if [ -f "$IWE_DIR/params.yaml" ]; then
   if [ "$FMT_CHECK" -gt 0 ]; then
     CHECK_RESULT=0
     bash "$IWE_DIR/scripts/fmt-version-check.sh" --quiet --notify 2>/dev/null && CHECK_RESULT=$? || CHECK_RESULT=$?
-    if [ "$CHECK_RESULT" -eq 1 ]; then
-      NEW_VER=$(cat "$IWE_DIR/.fmt-update-available" 2>/dev/null | head -1 || echo "?")
-      echo "  📦 Доступна новая версия FMT: $NEW_VER"
-      echo "    bash $IWE_DIR/scripts/fmt-diff.sh — просмотр изменений"
-    fi
+    case "$CHECK_RESULT" in
+      1)
+        NEW_VER=$(cat "$IWE_DIR/.fmt-update-available" 2>/dev/null | head -1 || echo "?")
+        echo "  📦 Доступна новая версия FMT: $NEW_VER"
+        echo "    bash $IWE_DIR/scripts/fmt-diff.sh — просмотр изменений"
+        ;;
+      2)
+        echo "  ⚠ Не удалось проверить версию FMT (ошибка сети или конфига)"
+        echo "    Проверь вручную: bash $IWE_DIR/scripts/fmt-version-check.sh"
+        ;;
+    esac
   fi
 fi
 echo ""

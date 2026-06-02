@@ -6,7 +6,8 @@
 #   bash fmt-version-check.sh --quiet  # Только код возврата (0=актуально, 1=есть новая, 2=ошибка)
 #   bash fmt-version-check.sh --notify # Записать результат в .fmt-update-available
 #
-# Встраивается в day-open.sh. Не требует git-клонирования — только GitHub API.
+# Встраивается в day-open.sh. Сравнивает последний git-тег upstream с версией в манифесте.
+# Не требует GitHub Releases — использует git ls-remote --tags.
 
 set -euo pipefail
 
@@ -44,39 +45,25 @@ with open('$MANIFEST') as f:
 print(data.get('fmt_source', 'TserenTserenov/FMT-exocortex-template'))
 " 2>/dev/null || echo "TserenTserenov/FMT-exocortex-template")
 
-# --- GitHub API: последний релиз ---
+# --- Получение последнего тега через git ls-remote ---
+# FMT использует git-теги (v0.34.1, v0.35.3...), а не GitHub Releases.
+# Сравниваем по тегам, сортируем версионно.
+
 LATEST_VERSION=""
-LATEST_URL=""
+LATEST_TAG=""
 ERROR_MSG=""
 
-GITHUB_OUTPUT=$(curl -sSfL \
-  -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/$FMT_SOURCE/releases/latest" 2>/dev/null || true)
+GIT_TAGS=$(git ls-remote --tags "https://github.com/$FMT_SOURCE.git" 2>/dev/null || true)
 
-if [ -n "$GITHUB_OUTPUT" ]; then
-  TAG=$(echo "$GITHUB_OUTPUT" | python3 -c "
-import sys,json
-try:
-    d=json.load(sys.stdin)
-    print(d.get('tag_name',''))
-except: print('')
-" 2>/dev/null || echo "")
-
-  if [ -n "$TAG" ]; then
-    LATEST_VERSION="${TAG#v}"
-    LATEST_URL=$(echo "$GITHUB_OUTPUT" | python3 -c "
-import sys,json
-try:
-    d=json.load(sys.stdin)
-    print(d.get('html_url',''))
-except: print('')
-" 2>/dev/null || echo "")
+if [ -n "$GIT_TAGS" ]; then
+  LATEST_TAG=$(echo "$GIT_TAGS" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' | sort -V | tail -1 || echo "")
+  if [ -n "$LATEST_TAG" ]; then
+    LATEST_VERSION="${LATEST_TAG#v}"
   fi
 fi
 
-if [ -z "$LATEST_VERSION" ]; then
-  # Fallback: нет сети или лимит API
-  ERROR_MSG="Не удалось подключиться к GitHub API (лимит? нет сети?)"
+if [ -z "$LATEST_TAG" ]; then
+  ERROR_MSG="Не удалось получить теги из git ls-remote (нет сети? неверный репозиторий?)"
 fi
 
 # --- Сравнение версий ---
@@ -92,13 +79,12 @@ if [ "$HIGHER" = "$LATEST_VERSION" ] && [ "$CURRENT_VERSION" != "$LATEST_VERSION
   # Есть новая версия
   $QUIET || {
     echo "📦 Доступна новая версия FMT: v$LATEST_VERSION (текущая: v$CURRENT_VERSION)"
-    echo "   Запусти: bash $SCRIPT_DIR/fmt-diff.sh"
-    [ -n "$LATEST_URL" ] && echo "   Релиз: $LATEST_URL"
+    echo "   Запусти: bash $SCRIPT_DIR/fmt-diff.sh --version=v$LATEST_VERSION"
+    echo "   Или:     bash $SCRIPT_DIR/update.sh --version=v$LATEST_VERSION"
   }
   if $NOTIFY; then
     echo "v$LATEST_VERSION" > "$IWE_DIR/.fmt-update-available"
     echo "fmt_source=$FMT_SOURCE" >> "$IWE_DIR/.fmt-update-available"
-    [ -n "$LATEST_URL" ] && echo "url=$LATEST_URL" >> "$IWE_DIR/.fmt-update-available"
   fi
   exit 1
 else
