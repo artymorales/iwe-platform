@@ -99,23 +99,17 @@ elif $MANIFEST_ONLY; then
   info "Режим: только обновление манифеста"
   TARGET_TAG=""
 else
-  info "Проверяю последнюю версию FMT через GitHub API..."
-  TARGET_TAG=$(curl -sSfL \
-    -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/$FMT_SOURCE/releases/latest" 2>/dev/null | \
-    python3 -c "
-import sys,json
-try:
-    d=json.load(sys.stdin)
-    print(d.get('tag_name',''))
-except: print('')
-" 2>/dev/null || echo "")
+  info "Проверяю последнюю версию FMT через CHANGELOG.md..."
+  CHANGELOG_URL="https://raw.githubusercontent.com/$FMT_SOURCE/main/CHANGELOG.md"
+  CHANGELOG_RAW=$(curl -sSfL "$CHANGELOG_URL" 2>/dev/null || true)
+  TARGET_TAG=$(echo "$CHANGELOG_RAW" | grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' | head -1 | sed 's/^## \[//;s/\]//')
 
   if [ -z "$TARGET_TAG" ]; then
-    err "Не удалось получить последний релиз через GitHub API."
+    err "Не удалось извлечь версию из CHANGELOG.md (нет сети? изменился формат?)"
     echo "  Укажи версию явно: bash update.sh --version=v0.35.0"
     exit 1
   fi
+  TARGET_TAG="v$TARGET_TAG"
   TARGET_VERSION="${TARGET_TAG#v}"
   info "Последняя версия: $TARGET_TAG (текущая: v$CURRENT_VERSION)"
 fi
@@ -160,12 +154,11 @@ git clone --depth 50 "https://github.com/$FMT_SOURCE.git" "$TMPDIR/fmt" 2>/dev/n
 
 cd "$TMPDIR/fmt"
 
-# Проверяем, что тег существует
+# Проверяем, что тег существует (FMT не тегирует CHANGELOG-версии — всегда clone main)
 if ! git rev-parse --verify "$TARGET_TAG" 2>/dev/null; then
-  warn "Тег $TARGET_TAG не найден. Использую main..."
-  TARGET_TAG="main"
-  TARGET_VERSION="main"
-  warn "Версия в манифесте будет обновлена на 'main' — исправь вручную!"
+  warn "Git-тег $TARGET_TAG не найден. FMT не тегирует версии из CHANGELOG."
+  warn "Использую main для кода, версия в манифесте будет $TARGET_TAG."
+  # TARGET_TAG и TARGET_VERSION оставляем из CHANGELOG — они верны
 fi
 
 info "FMT клонирован. Тег: $TARGET_TAG"

@@ -56,23 +56,17 @@ if [ -n "$TARGET_VERSION" ]; then
   TARGET_TAG="v${TARGET_VERSION#v}"
   echo "🔍 Сравнение: $CURRENT_TAG → $TARGET_TAG"
 else
-  echo "🔍 Определяю последнюю версию FMT..."
-  TARGET_TAG=$(curl -sSfL \
-    -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/$FMT_SOURCE/releases/latest" 2>/dev/null | \
-    python3 -c "
-import sys,json
-try:
-    d=json.load(sys.stdin)
-    print(d.get('tag_name',''))
-except: print('')
-" 2>/dev/null || echo "")
+  echo "🔍 Определяю последнюю версию FMT через CHANGELOG.md..."
+  CHANGELOG_URL="https://raw.githubusercontent.com/$FMT_SOURCE/main/CHANGELOG.md"
+  CHANGELOG_RAW=$(curl -sSfL "$CHANGELOG_URL" 2>/dev/null || true)
+  TARGET_TAG=$(echo "$CHANGELOG_RAW" | grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' | head -1 | sed 's/^## \[//;s/\]//')
 
   if [ -z "$TARGET_TAG" ]; then
-    echo "❌ Не удалось получить последний релиз через GitHub API."
+    echo "❌ Не удалось извлечь версию из CHANGELOG.md (нет сети? изменился формат?)"
     echo "   Укажите версию: bash fmt-diff.sh --version v0.35.0"
     exit 1
   fi
+  TARGET_TAG="v$TARGET_TAG"
   echo "   Последняя: $TARGET_TAG (текущая: $CURRENT_TAG)"
 fi
 
@@ -147,7 +141,7 @@ for e in data.get('files', []):
 
 # --- 5. Проверка deprecated ---
 echo "--- 🔴 Устаревшие файлы (DEPRECATED) ---"
-DEP_COUNT=$(grep -c '^DEPRECATED|' "$TMPDIR/manifest-data.txt" 2>/dev/null || echo 0)
+DEP_COUNT=$(grep -c '^DEPRECATED|' "$TMPDIR/manifest-data.txt" 2>/dev/null || true)
 if [ "$DEP_COUNT" -eq 0 ]; then
   echo "  (нет устаревших файлов)"
 else
@@ -167,7 +161,7 @@ echo ""
 # --- 6. Анализ каждого файла из манифеста ---
 echo "--- 📋 Файлы в манифесте ---"
 
-TOTAL_FILES=$(grep -c '^FILE|' "$TMPDIR/manifest-data.txt" 2>/dev/null || echo 0)
+TOTAL_FILES=$(grep -c '^FILE|' "$TMPDIR/manifest-data.txt" 2>/dev/null || true)
 
 grep '^FILE|' "$TMPDIR/manifest-data.txt" | while IFS='|' read -r _ local status note srcs_raw; do
 
