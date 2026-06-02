@@ -19,8 +19,25 @@ export function register(api: any) {
     ],
   });
 
+  api.registerSidebarSection({
+    id: "iwe-reviews",
+    title: "IWE · Обзоры",
+    items: [
+      { id: "iwe-wp-sweep", label: "📊 WP Sweep" },
+    ],
+  });
+
   // События от sidebar items: componentType="sidebar", eventType="select",
   // в данных: { sectionId, itemId }. descendantId матчится на itemId.
+  api.onEvent(
+    { componentType: "sidebar", descendantId: "iwe-wp-sweep", eventType: "select" },
+    async (_e: any, ctx: any) => {
+      await ctx.pi.prompt(
+        "Выполни `bash ~/iwe-platform/scripts/active-wp-sweep.sh` — покажи сводку всех активных РП (REGISTRY + inbox + WeekPlan + коммиты за 7 дней).",
+      );
+    },
+  );
+
   api.onEvent(
     { componentType: "sidebar", descendantId: "iwe-day-open", eventType: "select" },
     async (_e: any, ctx: any) => {
