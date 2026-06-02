@@ -26,28 +26,7 @@ fi
 echo "  Ритм: strategy_day=$STRATEGY_DAY, сегодня=$(date +%A)"
 echo ""
 
-# 0b. Проверка версии FMT-шаблона
-if [ -f "$IWE_DIR/params.yaml" ]; then
-  FMT_CHECK=$(grep 'fmt_check_on_open:' "$IWE_DIR/params.yaml" | grep -c 'true' || true)
-  if [ "$FMT_CHECK" -gt 0 ]; then
-    CHECK_RESULT=0
-    bash "$IWE_DIR/scripts/fmt-version-check.sh" --quiet --notify 2>/dev/null && CHECK_RESULT=$? || CHECK_RESULT=$?
-    case "$CHECK_RESULT" in
-      1)
-        NEW_VER=$(cat "$IWE_DIR/.fmt-update-available" 2>/dev/null | head -1 || echo "?")
-        echo "  📦 Доступна новая версия FMT: $NEW_VER"
-        echo "    bash $IWE_DIR/scripts/fmt-diff.sh — просмотр изменений"
-        if [ -f "$IWE_DIR/.fmt-update-changelog.md" ]; then
-          echo "    Ченжлог сохранён: $IWE_DIR/.fmt-update-changelog.md"
-        fi
-        ;;
-      2)
-        echo "  ⚠ Не удалось проверить версию FMT (ошибка сети или конфига)"
-        echo "    Проверь вручную: bash $IWE_DIR/scripts/fmt-version-check.sh"
-        ;;
-    esac
-  fi
-fi
+# 0b. FMT-обновление — удалено (ручное управление версиями)
 echo ""
 
 # 1. Pull репозиториев
