@@ -53,7 +53,7 @@ echo ""
 
 # 2. Проверка: был ли Day Open сегодня?
 mkdir -p "$STRATEGY_DIR/current"
-EXISTING_DAYPLAN=$(ls -t "$STRATEGY_DIR/current/dayplan-${DATE}*.md" 2>/dev/null | head -1)
+EXISTING_DAYPLAN=$(ls -t "$STRATEGY_DIR/current"/dayplan-${DATE}*.md 2>/dev/null | head -1 || true)
 if [ -n "$EXISTING_DAYPLAN" ]; then
   echo "  ✓ DayPlan уже существует: $(basename "$EXISTING_DAYPLAN")"
   echo ""
