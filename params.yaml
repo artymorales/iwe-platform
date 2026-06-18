@@ -21,9 +21,6 @@ week_close_enabled: true
 # auto — агент пишет без подтверждения
 capture_autonomy: propose
 
-# === Расширения ===
-extensions_dir: extensions
-
 # === FMT (шаблон) ===
 # Обновление вручную: сверка с upstream CHANGELOG.md, ручное копирование blue-файлов.
 # Автоматический механизм убран — решение WP-18 (update.sh перезаписывает адаптированные файлы).
