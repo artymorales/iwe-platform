@@ -82,15 +82,18 @@ done
 
 **Формат контекстного файла — см. work.md §2a.**
 
-### Шаг 4. Decision Log — проверить
+### Шаг 4. Decision Capture — проверить
 
 Решения пользователя уже должны быть записаны в `## Решения` контекстного файла
-(work.md §3 → Decision Capture на каждом рубеже).
+(work.md §3).
 
-Проверить: есть ли незаписанные? Если да → добавить и в контекстный файл,
-и в `~/ds-strategy/docs/decisions/decision-log-YYYY-MM.md`.
+Проверить: есть ли незаписанные architectural/strategic решения за сессию?
+Если да → добавить в контекстный файл.
 
-### Шаг 5. Session Log — записать
+### Шаг 5. Session Log
+
+Сессия уже записана в `## Лог сессий` контекстного файла РП (work.md §2a).
+Дополнительно — для сводного аудита:
 ```bash
 echo "YYYY-MM-DD HH:MM–HH:MM | WP-N | done/in_progress | модель" >> ~/ds-strategy/inbox/session-log.md
 ```
