@@ -1,6 +1,7 @@
 # Протокол Работы (Work) — ОРЗ-фрактал
 
 > **Два масштаба:** День и Сессия.
+> **Бюджет:** Day Work ~4-8h, Session Work ~30 мин–2h.
 > **Адаптация:** Pi agent + Aethon (нет `.claude/hooks/`, нет hooks-событий, нет `ScheduleWakeup`).
 > **Источник:** AGENTS.md §2 (slim) → этот файл.
 

@@ -1,6 +1,7 @@
 # Протокол Открытия (Open) — ОРЗ-фрактал
 
 > **Два масштаба:** День и Сессия. Триггер определяет масштаб.
+> **Бюджет:** Day Open ~5 мин, Session Open ~3 мин.
 > **Адаптация:** Pi agent + Aethon (нет `.claude/hooks/`, `TodoWrite`, `ScheduleWakeup`).
 > **Источник:** AGENTS.md §2 (slim) → этот файл.
 
