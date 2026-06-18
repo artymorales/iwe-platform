@@ -67,11 +67,14 @@
 | Тип знания | Куда | Когда |
 |-----------|------|-------|
 | **Правило** (1-3 строки, применимо везде) | `memory/distinctions.md` | Сразу |
+| **Различение** (HD — hard distinction) | `memory/distinctions.md` | Сразу |
 | **Доменное знание** (архитектура, паттерн, платформа) | `~/ds-knowledge-index/captures/` | На рубеже или Close |
 | **Сырая мысль** (неоформленная, но ценная) | `~/ds-knowledge-index/drafts/` | Сразу |
 | **Урок** («не делать X снова») | `~/ds-knowledge-index/captures/` | На рубеже |
-| **Различение** (HD — hard distinction) | `memory/distinctions.md` | Сразу |
+| **Крупный урок** (заслуживает отдельного файла) | `memory/lessons/` (новый файл) | Close |
 | **Протокол / процесс** (повторяемый алгоритм) | `memory/protocols/` | Close |
+| **FAQ** (ответ на вопрос «как работает X?») | `~/ds-knowledge-index/captures/` → пометить `[FAQ]` | Сразу |
+| **Зерно для поста** (связное рассуждение → публикация) | `~/ds-strategy/drafts/draft-list.md` (строка) | Close |
 
 **Формат capture:**
 ```markdown
