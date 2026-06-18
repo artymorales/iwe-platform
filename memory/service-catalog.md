@@ -21,6 +21,7 @@
 | **S09** | Handoff | `protocols/work.md §2a`, `protocols/close.md §3` | Контекстные файлы РП, передача между сессиями |
 | **S10** | Day Rhythm | `memory/day-rhythm-config.yaml` | Конфигурация ритма дня, strategy_day |
 | **S11** | Decision Capture | `protocols/work.md §3` | Фиксация architectural/strategic решений |
+| **S12** | Note Review | `protocols/note-review.md` | Разбор заметок: классификация, маршрутизация, архив |
 
 ## Файлы конфигурации (не сервисы, но затрагиваются)
 
