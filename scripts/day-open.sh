@@ -70,9 +70,11 @@ if [ "$LOWER_STRAT_DAY" = "$LOWER_TODAY" ]; then
 fi
 
 if [ "$IS_STRATEGY_DAY" = true ]; then
-  echo "  📋 Сегодня strategy_day ($STRATEGY_DAY) — DayPlan НЕ создаётся"
-  echo "     План дня уже встроен в WeekPlan (секция «План на понедельник»)"
-  echo "     Запустите: стратегическая сессия"
+  echo "  📋 Сегодня strategy_day ($STRATEGY_DAY)"
+  echo "     → Выполни §2 strategy-protocol.md (session-prep):"
+  echo "       чтение итогов, разбор inbox, проверка НЭП, active-wp-sweep"
+  echo "     → Сформируй черновик WeekPlan (status: draft)"
+  echo "     → Предложи пользователю начать стратегическую сессию"
   echo ""
   echo "=== День открыт (strategy_day) ==="
   exit 0

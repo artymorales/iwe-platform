@@ -15,7 +15,7 @@
 | **S03** | Session (ОРЗ) | `protocols/open.md`, `protocols/work.md`, `protocols/close.md` | Цикл Открытие→Работа→Закрытие |
 | **S04** | Capture | `protocols/work.md §2`, `memory/distinctions.md` | Захват знаний: различения, captures, drafts |
 | **S05** | WP Registry | `protocols/open.md §WP Gate`, `~/ds-strategy/docs/WP-REGISTRY.md` | Реестр Work Packages, WP Gate |
-| **S06** | Strategy | `protocols/strategy-session.md`, `week-close.sh` | Стратегическая сессия, Month Close |
+| **S06** | Strategy | `protocols/strategy-session.md`, `protocols/strategy-protocol.md`, `week-close.sh` | Стратегическая сессия, работа со стратегией между сессиями, Week Review, Month Close |
 | **S07** | Verification | `protocols/work.md §7`, `scripts/skills/archgate.sh` | Верификация артефактов, ArchGate |
 | **S08** | Git Workflow | `protocols/open.md §Pull-on-Touch`, `protocols/close.md §1` | Pull-on-Touch, commit+push |
 | **S09** | Handoff | `protocols/work.md §2a`, `protocols/close.md §3` | Контекстные файлы РП, передача между сессиями |
