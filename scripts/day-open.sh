@@ -2,6 +2,8 @@
 # day-open.sh — Открытие дня в IWE
 # Создаёт DayPlan (формальный план дня с РП, слотами, бюджетом).
 # В strategy_day — не создаёт DayPlan (план дня в WeekPlan).
+# Gate: проверяет Close предыдущего рабочего дня (WP-25).
+# Сверка с FMT: protocol open.md §Day Open.
 # Запуск: bash ~/iwe-platform/scripts/day-open.sh
 set -euo pipefail
 
@@ -12,6 +14,21 @@ DATE=$(date +%Y-%m-%d)
 DAY_OF_WEEK=$(date +%u)  # 1=Пн, 7=Вс
 WEEK_NUM=$(date +%V)
 DAY_NAME=$(date +%A)
+
+# Вспомогательная: предыдущий рабочий день (Пн→Пт, Вт-Сб→вчера, Вс→Пт)
+prev_workday() {
+  local dow=$DAY_OF_WEEK
+  if [ "$dow" -eq 1 ]; then
+    # Понедельник → пятница (3 дня назад)
+    date -v-3d +%Y-%m-%d 2>/dev/null || date -d '3 days ago' +%Y-%m-%d
+  elif [ "$dow" -eq 7 ]; then
+    # Воскресенье → пятница (2 дня назад)
+    date -v-2d +%Y-%m-%d 2>/dev/null || date -d '2 days ago' +%Y-%m-%d
+  else
+    # Вт–Сб → вчера
+    date -v-1d +%Y-%m-%d 2>/dev/null || date -d '1 day ago' +%Y-%m-%d
+  fi
+}
 
 echo "=== Открытие дня: $DATE ==="
 echo ""
@@ -26,7 +43,7 @@ fi
 echo "  Ритм: strategy_day=$STRATEGY_DAY, сегодня=$(date +%A)"
 echo ""
 
-# 0b. FMT-обновление — удалено (ручное управление версиями)
+# 0b. FMT-обновление — удалено (WP-18: ручное управление версиями)
 echo ""
 
 # 1. Pull репозиториев
@@ -37,6 +54,70 @@ for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
     (cd "$repo" && git pull --rebase 2>/dev/null && echo "    OK") || echo "    Пропущен (dirty/net)"
   fi
 done
+echo ""
+
+# === GATE: Close предыдущего дня (WP-25) ===
+PREV_DATE=$(prev_workday)
+echo "--- Gate: Close предыдущего рабочего дня ($PREV_DATE) ---"
+
+PREV_DAYPLAN=$(ls -t "$STRATEGY_DIR/current"/dayplan-${PREV_DATE}*.md 2>/dev/null | head -1 || true)
+HAS_CLOSE_COMMIT=false
+
+# Проверяем коммиты day-close за предыдущий рабочий день во всех репо
+for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
+  if [ -d "$repo/.git" ]; then
+    CLOSE_LOG=$(cd "$repo" && git log --since="${PREV_DATE}T00:00" --until="${DATE}T00:00" --oneline --grep="day-close" 2>/dev/null | head -1 || true)
+    if [ -n "$CLOSE_LOG" ]; then
+      HAS_CLOSE_COMMIT=true
+      echo "  ✓ Close найден в $(basename "$repo"): ${CLOSE_LOG:0:60}"
+      break
+    fi
+  fi
+done
+
+if [ "$HAS_CLOSE_COMMIT" = false ]; then
+  echo "  ⚠ НЕ НАЙДЕН Close за предыдущий рабочий день ($PREV_DATE)"
+  echo ""
+
+  if [ -n "$PREV_DAYPLAN" ]; then
+    echo "  DayPlan за $PREV_DATE существует: $(basename "$PREV_DAYPLAN")"
+    # Проверим, заполнен ли итог
+    if grep -q "Итог дня" "$PREV_DAYPLAN" 2>/dev/null && grep -q "Сделано:" "$PREV_DAYPLAN" 2>/dev/null; then
+      echo "  … но итог дня не заполнен / Close не выполнен."
+    fi
+  else
+    echo "  DayPlan за $PREV_DATE не найден."
+  fi
+
+  echo ""
+  echo "  Протокол ОРЗ предписывает: Close → Open."
+  echo "  Выбери действие:"
+  echo "    1. Закрыть предыдущий день сейчас  → bash ~/iwe-platform/scripts/day-close.sh"
+  echo "    2. Принудительно открыть (override) → продолжение"
+  echo ""
+  echo -n "  Выбор (1/2): "
+  read -r CHOICE
+
+  if [ "$CHOICE" = "1" ]; then
+    echo ""
+    echo "  Запускаю day-close.sh для $PREV_DATE…"
+    # Переопределяем DATE на предыдущий день для day-close.sh
+    export OVERRIDE_DATE="$PREV_DATE"
+    # day-close.sh должен поддерживать OVERRIDE_DATE (если нет — запустится с текущей датой)
+    bash "$IWE_DIR/scripts/day-close.sh" || echo "  ⚠ day-close.sh завершился с ошибкой, продолжаю day-open"
+    unset OVERRIDE_DATE
+  elif [ "$CHOICE" = "2" ]; then
+    echo ""
+    echo "  ⚠ Принудительное открытие (override). Фиксирую в лог."
+    mkdir -p "$STRATEGY_DIR/inbox"
+    echo "$DATE | day-open override: Close $PREV_DATE пропущен" >> "$STRATEGY_DIR/inbox/open-sessions.log"
+  else
+    echo "  Неверный выбор. Выход."
+    exit 1
+  fi
+else
+  echo "  ✓ Предыдущий день закрыт"
+fi
 echo ""
 
 # 2. Проверка: был ли Day Open сегодня?
@@ -71,6 +152,38 @@ fi
 
 if [ "$IS_STRATEGY_DAY" = true ]; then
   echo "  📋 Сегодня strategy_day ($STRATEGY_DAY)"
+  echo ""
+
+  # === GATE: Week Close предыдущей недели (WP-25, сверка с FMT) ===
+  PREV_WEEK=$((WEEK_NUM - 1))
+  echo "  --- Gate: Week Close W${PREV_WEEK} ---"
+  HAS_WEEK_CLOSE=false
+  for repo in "$IWE_DIR" "$STRATEGY_DIR"; do
+    if [ -d "$repo/.git" ]; then
+      WC_LOG=$(cd "$repo" && git log --oneline --grep="week-close" 2>/dev/null | head -1 || true)
+      if [ -n "$WC_LOG" ]; then
+        echo "  ✓ Week Close найден в $(basename "$repo"): ${WC_LOG:0:60}"
+        HAS_WEEK_CLOSE=true
+        break
+      fi
+    fi
+  done
+
+  if [ "$HAS_WEEK_CLOSE" = false ]; then
+    echo "  ⚠ Week Close W${PREV_WEEK} НЕ НАЙДЕН."
+    echo "     → Запусти week-close.sh перед стратегической сессией:"
+    echo "       bash ~/iwe-platform/scripts/week-close.sh"
+    echo ""
+    echo "  Продолжить без Week Close? (y/N): "
+    read -r WC_CHOICE
+    if [ "$WC_CHOICE" != "y" ] && [ "$WC_CHOICE" != "Y" ]; then
+      echo "  Выход. Сначала закрой неделю."
+      exit 1
+    fi
+    echo "  ⚠ Продолжаю без Week Close (override)"
+  fi
+
+  echo ""
   echo "     → Выполни §2 strategy-protocol.md (session-prep):"
   echo "       чтение итогов, разбор inbox, проверка НЭП, active-wp-sweep"
   echo "     → Сформируй черновик WeekPlan (status: draft)"
@@ -80,7 +193,25 @@ if [ "$IS_STRATEGY_DAY" = true ]; then
   exit 0
 fi
 
-# 5. Создание DayPlan
+# 5. Проверка: читаем последний DayPlan, WeekPlan, WP-REGISTRY (сверка с FMT open.md §3)
+echo "--- Контекст планирования (FMT open.md §3) ---"
+LAST_DAYPLAN=$(ls -t "$STRATEGY_DIR/current"/dayplan-*.md 2>/dev/null | grep -v "$DATE" | head -1 || true)
+if [ -n "$LAST_DAYPLAN" ]; then
+  echo "  Последний DayPlan: $(basename "$LAST_DAYPLAN")"
+else
+  echo "  Последний DayPlan: не найден"
+fi
+
+WP_REGISTRY="$STRATEGY_DIR/docs/WP-REGISTRY.md"
+if [ -f "$WP_REGISTRY" ]; then
+  ACTIVE_WP=$(grep -c '🔄' "$WP_REGISTRY" 2>/dev/null || echo "0")
+  echo "  WP-REGISTRY: активно $(echo "$ACTIVE_WP" | tr -d ' ') РП"
+else
+  echo "  WP-REGISTRY: не найден"
+fi
+echo ""
+
+# 6. Создание DayPlan
 echo "--- Создание DayPlan ---"
 TEMPLATE="$IWE_DIR/memory/templates/dayplan-template.md"
 DAYPLAN="$STRATEGY_DIR/current/dayplan-${DATE}.md"
@@ -109,7 +240,7 @@ EOF
 fi
 echo ""
 
-# 6. Проверка dirty-репозиториев
+# 7. Проверка dirty-репозиториев
 echo "--- Проверка незакоммиченных изменений ---"
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
