@@ -47,10 +47,18 @@ done
 
 Проверить: появились ли за сессию новые знания?
 
-- **Правило** (1-3 строки) → `~/iwe-platform/memory/distinctions.md`
-- **Доменное наблюдение** → `~/ds-knowledge-index/captures/`
-- **Сырая мысль / урок** → `~/ds-knowledge-index/drafts/`
-- **Нет нового знания** → пропустить молча
+**7 направлений (PD.FORM.005 Note-Review):**
+
+| Тип | Куда | Команда |
+|-----|------|--------|
+| Правило / различение | `memory/distinctions.md` | `capture.sh --type distinction` |
+| Доменное знание | `captures/` | `capture.sh --type capture` |
+| Зерно для поста | `drafts/` + `draft-list.md` | `capture.sh --type draft` |
+| НЭП | `Dissatisfactions.md` | `capture.sh --type dissatisfaction` |
+| Задача | DayPlan/WeekPlan | `capture.sh --type task` |
+| Идея (без действия) | `fleeting-notes.md` | `capture.sh --type idea` |
+| Личное | `personal/` | `capture.sh --type personal` |
+| **Нет нового знания** → пропустить молча |
 
 Анонс: *«Capture: [что] → [куда]»*.
 
@@ -207,6 +215,28 @@ Sub-agent получает: чеклист + факты (git status, log, captur
 
 При «да» → выполнить `protocols/note-review.md`.
 При «нет» → продолжить Day Close (заметки дождутся следующего раза).
+
+---
+
+### Шаг 0.5. Creative Pipeline Check (БЛОКИРУЮЩЕЕ на Day Close)
+
+> **Источник:** PD.FORM.005 · Каждый Day Close — проверка здоровья конвейера.
+
+```bash
+bash ~/iwe-platform/scripts/skills/creative-pipeline.sh check
+```
+
+**4 вопроса теста здоровья:**
+1. Входящие ≈ исходящие? (captures ≈ draft + published)
+2. TTL не нарушены? (черновики >7д?)
+3. Guard не нарушен? (черновиков ≤5?)
+4. Pack → пост? (были captures → есть публикации?)
+
+**Если ≥2 «нет»:** конвейер застопорился → тема для стратегической сессии.
+**Если >5 captures старше 30 дней:** запустить разбор:
+```bash
+bash ~/iwe-platform/scripts/skills/creative-pipeline.sh resolve-captures
+```
 
 ---
 

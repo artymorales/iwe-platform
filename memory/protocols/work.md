@@ -134,13 +134,50 @@
 
 ### Творческий конвейер (на рубежах)
 
-> Рядом со Skill Discovery. На каждом рубеже спросить: **есть ли мысль, которая может стать постом / статьёй?**
+> **Источник:** PD.FORM.005 Creative Pipeline (FMT/IWE)
+> **Инструмент:** `scripts/skills/creative-pipeline.sh`
+
+На каждом рубеже спросить: **есть ли мысль, которая может стать постом / статьёй?**
 
 Если да:
-1. Записать зерно в `~/ds-strategy/drafts/draft-list.md` (одна строка: заголовок + концепт)
+1. Записать зерно: `capture.sh --type draft "Заголовок" "источник"`
 2. Не развивать сейчас — только зафиксировать. Развитие — отдельная сессия
 
-**Цепочка:** сырая мысль → зерно в draft-list → сессия «развитие черновика» → пост
+**4 стадии артефакта (TTL):**
+
+| Стадия | Где | TTL |
+|--------|-----|-----|
+| Заметка | captures/ | ∞ (до разбора) |
+| Черновик | drafts/ + draft-list.md | ≤7д |
+| Заготовка | ds-knowledge-index/published/ | ≤14д |
+| Пост | published/ (status: published) | — |
+
+**7 направлений (Note-Review):**
+
+| # | Категория | Куда | Команда |
+|---|-----------|------|---------|
+| 1 | НЭП | Dissatisfactions.md | `capture.sh --type dissatisfaction` |
+| 2 | Задача | DayPlan/WeekPlan | `capture.sh --type task` или `wp-new.sh` |
+| 3 | Знание | captures/ → Pack | `capture.sh --type capture` |
+| 4 | Черновик | drafts/ + draft-list | `capture.sh --type draft` |
+| 5 | Идея 🔄 | fleeting-notes.md | `capture.sh --type idea` |
+| 6 | Личное | personal/ | `capture.sh --type personal` |
+| 7 | Шум | /dev/null | `capture.sh --type noise` |
+
+**Anti-accumulation guards:**
+
+| Порог | Реакция |
+|-------|---------|
+| ≤5 черновиков | ✅ Норма |
+| 6-10 черновиков | ⚠️ Предупреждение — приоритизируй или закрой |
+| >10 черновиков | 🚫 Блокировка — нельзя добавлять новые |
+
+**Проверка конвейера на Day Close:**
+```bash
+bash ~/iwe-platform/scripts/skills/creative-pipeline.sh check
+```
+
+**Цепочка:** сырая мысль → классификация (7 направлений) → capture/draft → Pack/публикация
 
 ---
 
