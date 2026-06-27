@@ -18,7 +18,7 @@
 | **S06** | Strategy | `protocols/strategy-session.md`, `protocols/strategy-protocol.md`, `week-close.sh` | Стратегическая сессия, работа со стратегией между сессиями, Week Review, Month Close |
 | **S07** | Verification | `protocols/work.md §7`, `scripts/skills/archgate.sh` | Верификация артефактов, ArchGate |
 | **S08** | Git Workflow | `protocols/open.md §Pull-on-Touch`, `protocols/close.md §1` | Pull-on-Touch, commit+push |
-| **S09** | Handoff | `protocols/work.md §2a`, `protocols/close.md §3` | Контекстные файлы РП, передача между сессиями |
+| **S09** | Handoff (Контекст сессий) | `protocols/work.md §2a`, `protocols/session-context.md`, `protocols/close.md §2.6-3a`, `protocols/open.md §Session Context Gate` | Двухуровневый контекст: WP-файлы + сессионный контекст, восстановление при Open |
 | **S10** | Day Rhythm | `memory/day-rhythm-config.yaml` | Конфигурация ритма дня, strategy_day |
 | **S11** | Decision Capture | `protocols/work.md §3` | Фиксация architectural/strategic решений |
 | **S12** | Note Review | `protocols/note-review.md` | Разбор заметок: классификация, маршрутизация, архив |
