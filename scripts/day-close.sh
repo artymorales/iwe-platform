@@ -21,7 +21,20 @@ else
 fi
 echo ""
 
-# 2. Commit + Push по всем репозиториям
+# 2. Творческий конвейер — проверка здоровья
+#    Источник: PD.FORM.005 Creative Pipeline
+#    БЛОКИРУЮЩЕЕ — Day Close
+
+echo "--- Творческий конвейер ---"
+PIPELINE_SCRIPT="$IWE_DIR/scripts/skills/creative-pipeline.sh"
+if [ -x "$PIPELINE_SCRIPT" ]; then
+  bash "$PIPELINE_SCRIPT" check || true
+else
+  echo "  ⚠ creative-pipeline.sh не найден (пропускаю)"
+fi
+echo ""
+
+# 3. Commit + Push по всем репозиториям
 echo "--- Commit + Push ---"
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
@@ -41,7 +54,7 @@ for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
 done
 echo ""
 
-# 3. Итог дня
+# 4. Итог дня
 echo "--- Итог дня ---"
 echo "  Дата: $DATE"
 echo "  Репозитории: закоммичены"
