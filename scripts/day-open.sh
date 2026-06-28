@@ -240,7 +240,46 @@ EOF
 fi
 echo ""
 
-# 7. Проверка dirty-репозиториев
+# 7. Study Pipeline: предложить материал из очереди
+echo "--- Study Pipeline: очередь материалов ---"
+READING_LIST="$KNOWLEDGE_DIR/inbox/reading-list.md"
+if [ -f "$READING_LIST" ]; then
+  # Извлекаем строки очереди (⏳ queue)
+  QUEUE_COUNT=$(grep -c '⏳ queue' "$READING_LIST" 2>/dev/null || echo "0")
+  echo "  Материалов в очереди: $QUEUE_COUNT"
+
+  if [ "$QUEUE_COUNT" -gt 0 ]; then
+    echo ""
+    echo "  Доступные материалы для слота «Мышление письмом»:"
+    echo ""
+    # Парсим и показываем таблицу (колонки: Статус, P, Название, Домен, Источник, Время, TTL)
+    grep '⏳ queue' "$READING_LIST" | while IFS='|' read -r _ status pri title domain source time added ttl rest; do
+      pri=$(echo "$pri" | xargs)
+      title=$(echo "$title" | xargs)
+      domain=$(echo "$domain" | xargs)
+      time_est=$(echo "$time" | xargs)
+      ttl_val=$(echo "$ttl" | xargs)
+      echo "    ${pri} ${title} [${domain}] ~${time_est} (TTL: ${ttl_val})"
+    done
+    echo ""
+    echo "  Метод: выбрать → изучить → пересказ → capture.sh → archived"
+    echo "  Протокол: memory/protocols/study-pipeline.md (WP-31)"
+
+    # Авто-предложение для DayPlan: если TTL истекает на этой неделе → пометить 🔴
+    CURRENT_WEEK="W$WEEK_NUM"
+    URGENT=$(grep '⏳ queue' "$READING_LIST" | grep "${CURRENT_WEEK}" | wc -l | tr -d ' ' || echo "0")
+    if [ "$URGENT" -gt 0 ]; then
+      echo "  ⚠ ${URGENT} материал(ов) с TTL на этой неделе (${CURRENT_WEEK}) — приоритет для сегодняшнего слота"
+    fi
+  else
+    echo "  ⚠ Очередь пуста. Н13: «недостаточный входящий поток». Добавь материал."
+  fi
+else
+  echo "  ⚠ reading-list.md не найден"
+fi
+echo ""
+
+# 8. Проверка dirty-репозиториев
 echo "--- Проверка незакоммиченных изменений ---"
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
