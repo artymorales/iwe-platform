@@ -45,26 +45,15 @@ done
 
 ### Шаг 2. Capture — что узнали
 
+> **Полная таблица типов и форматов:** `memory/protocols/work.md` §2 (9 типов capture).
+> Здесь — краткая процедура для Close.
+
 Проверить: появились ли за сессию новые знания?
-
-**7 направлений (PD.FORM.005 Note-Review):**
-
-| Тип | Куда | Команда |
-|-----|------|--------|
-| Правило / различение | `memory/distinctions.md` | `capture.sh --type distinction` |
-| Доменное знание | `captures/` | `capture.sh --type capture` |
-| Зерно для поста | `drafts/` + `draft-list.md` | `capture.sh --type draft` |
-| НЭП | `Dissatisfactions.md` | `capture.sh --type dissatisfaction` |
-| Задача | DayPlan/WeekPlan | `capture.sh --type task` |
-| Идея (без действия) | `fleeting-notes.md` | `capture.sh --type idea` |
-| Личное | `personal/` | `capture.sh --type personal` |
-| **Нет нового знания** → пропустить молча |
-
 Анонс: *«Capture: [что] → [куда]»*.
 
 **Проверить `capture_autonomy` в `params.yaml`:**
 - `manual` — только по команде (пропустить, если не было команды)
-- `propose` — предложить: *«Есть capture: [что] → [куда]. Записать?»*
+- `propose` — предложить, если пользователь не отвечает 1-2 шага — записать (work.md §2)
 - `auto` — записать без подтверждения
 
 ### Шаг 2.5 Verification Gate — проверить качество
@@ -143,9 +132,9 @@ done
   mv ~/ds-strategy/inbox/WP-N-context.md ~/ds-strategy/archive/wp-contexts/
   ```
 
-**Формат контекстного файла — см. work.md §2a (расширенный — см. session-context.md §Обновление WP-контекста).**
+**Формат контекстного файла — канонический в work.md §2a.**
 
-### Шаг 3a. Cleanup Gate — очистка inbox
+### Шаг 3a. Inbox Cleanup — очистка inbox
 
 Проверить `~/ds-strategy/inbox/`:
 1. Найти все `WP-*-context.md` со статусом `done`

@@ -116,13 +116,7 @@ grep, edit, commit) — сделать `git pull --rebase`. Один раз на
 - `propose` — агент предлагает, пользователь подтверждает (сейчас: `propose`)
 - `auto` — агент пишет без подтверждения
 
-**Типы capture:**
-| Тип | Куда | Пример |
-|-----|------|--------|
-| **Правило** (1-3 строки) | `memory/distinctions.md` | «flash для рутины, pro для стратегии» |
-| **Протокол/процесс** | `memory/protocols/` | «Как проводить стратегическую сессию» |
-| **Доменное знание** | `~/ds-knowledge-index/captures/` | «Принципы работы Omniroute» |
-| **Урок/рефлексия** | `~/ds-knowledge-index/drafts/` | «Не начинать сложную задачу без day-open» |
+**Типы capture:** полная таблица из 9 типов — `memory/protocols/work.md` §2.
 
 **Формат capture:**
 ```markdown

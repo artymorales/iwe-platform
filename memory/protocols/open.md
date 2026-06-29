@@ -26,18 +26,7 @@
 > **Бюджет:** ~5-10 мин.
 > **Скрипт:** `bash ~/iwe-platform/scripts/day-open.sh`
 
-### Шаг 1. Проверка обновлений FMT
-Если `params.yaml → fmt_check_on_open: true`:
-```bash
-bash ~/iwe-platform/scripts/fmt-version-check.sh --notify
-```
-- Exit 0 → версия актуальна, продолжать
-- Exit 1 → есть новая версия. Сказать:
-  *«📦 Доступна новая версия FMT vX.Y.Z. Запустить просмотр изменений?»*
-- При согласии → `bash ~/iwe-platform/scripts/fmt-diff.sh`
-- Отчёт категоризировать (🔵 NEW / 🟡 CHANGED / 🔴 DEPRECATED)
-
-### Шаг 2. Прочитать конфигурацию дня
+### Шаг 1. Прочитать конфигурацию дня
 ```yaml
 # ~/iwe-platform/memory/day-rhythm-config.yaml
 strategy_day: monday
@@ -54,12 +43,12 @@ pomodoro:
 
 **Обычный день?** После формирования DayPlan — `strategy-protocol.md` §4: проверить alignment задач дня с фокусом месяца.
 
-### Шаг 3. Прочитать планы
+### Шаг 2. Прочитать планы
 - Последний DayPlan (если есть) → `~/ds-strategy/current/`
 - WeekPlan → `~/ds-strategy/current/`
 - WP-REGISTRY → `~/ds-strategy/docs/WP-REGISTRY.md`
 
-### Шаг 4. Запустить day-open.sh
+### Шаг 3. Запустить day-open.sh
 ```bash
 bash ~/iwe-platform/scripts/day-open.sh
 ```
@@ -86,7 +75,7 @@ bash ~/iwe-platform/scripts/day-open.sh
 
 ---
 
-### Шаг 0. Cleanup — чистое рабочее пространство
+### Шаг 0. Pre-flight Check — чистое рабочее пространство
 
 Проверить `git status --short` во всех трёх репо:
 ```bash
@@ -124,9 +113,8 @@ git -C ~/ds-knowledge-index status --short
 **Б. Номер + задача** (например «WP-27: дописать §4»):
 1. Прочитать `~/ds-strategy/inbox/WP-N-context.md`
 2. **Verif Gate** — определить класс (trivial/closed-loop/open-loop/problem-framing)
-3. **Стратегическая сверка** (`strategy-protocol.md` §4): задача к какому результату месяца?
-4. **Объявить ритуал:** роли, класс, оценка, модель
-5. Дождаться «да» → Pull → регистрация сессии → работа
+3. **Объявить ритуал:** роли, класс, оценка, модель (шаги 2a-2f ниже)
+4. Дождаться «да» → Pull → регистрация сессии → работа
 
 **Не искать РП в WeekPlan, не проверять бюджет, не предлагать создать новый РП.**
 Всё это уже решено в главной вкладке.
