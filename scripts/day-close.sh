@@ -34,24 +34,31 @@ else
 fi
 echo ""
 
-# 3. Commit + Push по всем репозиториям
-echo "--- Commit + Push ---"
-for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
-  if [ -d "$repo/.git" ]; then
-    cd "$repo"
-    DIRTY=$(git status --short 2>/dev/null | wc -l)
-    if [ "$DIRTY" -gt 0 ]; then
-      echo "  → $repo: $DIRTY файлов"
-      git add -A
-      git commit -m "day-close: $DATE"
-      git push 2>/dev/null && echo "    ✓ Push OK" || echo "    ⚠ Push не удался"
-    else
-      echo "  ✓ $repo: чисто"
+# 3. G7 Close Gate — Commit + Push по всем репозиториям + capture
+#    WP-34: формализованный гейт с логированием
+GATE_SCRIPT="$IWE_DIR/scripts/gates/close-gate.sh"
+if [ -x "$GATE_SCRIPT" ]; then
+  echo "--- G7 Close Gate ---"
+  bash "$GATE_SCRIPT" "$@"
+else
+  echo "--- Commit + Push (fallback) ---"
+  for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
+    if [ -d "$repo/.git" ]; then
+      cd "$repo"
+      DIRTY=$(git status --short 2>/dev/null | wc -l)
+      if [ "$DIRTY" -gt 0 ]; then
+        echo "  → $repo: $DIRTY файлов"
+        git add -A
+        git commit -m "day-close: $DATE"
+        git push 2>/dev/null && echo "    ✓ Push OK" || echo "    ⚠ Push не удался"
+      else
+        echo "  ✓ $repo: чисто"
+      fi
+    elif [ -d "$repo" ]; then
+      echo "  · $repo: не git-репозиторий (пропущен)"
     fi
-  elif [ -d "$repo" ]; then
-    echo "  · $repo: не git-репозиторий (пропущен)"
-  fi
-done
+  done
+fi
 echo ""
 
 # 4. Итог дня
