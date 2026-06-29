@@ -47,6 +47,22 @@ if [ -d "$REPO/.git" ]; then
     echo "$STAGED" | while read -r f; do echo "    $f"; done
     echo ""
 
+    # Session Context Gate: если коммит в ds-strategy — проверить session-context.md
+    if [ "$(basename "$REPO")" = "ds-strategy" ]; then
+      CTX="$REPO/current/session-context.md"
+      CTX_IN_STAGED=$(echo "$STAGED" | grep -c "current/session-context.md" || true)
+      if [ -f "$CTX" ] && [ "$CTX_IN_STAGED" -eq 0 ]; then
+        CTX_DATE=$(date -r "$CTX" +%Y-%m-%d 2>/dev/null || echo "unknown")
+        TODAY=$(date +%Y-%m-%d)
+        if [ "$CTX_DATE" != "$TODAY" ]; then
+          echo "  ❌ Session Context Gate: session-context.md не обновлён ($CTX_DATE) и не в staging."
+          echo "     Обнови ход мысли перед commit (close.md §2.6)."
+          echo "     vim $CTX && git add $CTX"
+          echo ""
+        fi
+      fi
+    fi
+
     # Проверяем: изменяли ли мы скрипты/конфиги, о которых есть записи в memory/?
     SCRIPTS_CHANGED=$(echo "$STAGED" | grep -E '^scripts/' || true)
     if [ -n "$SCRIPTS_CHANGED" ]; then

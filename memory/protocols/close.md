@@ -107,6 +107,26 @@ done
 **Gate:** агент НЕ делает commit, пока session-context.md не обновлён.
 Пропустить только если сессия ≤5 мин и без изменений файлов.
 
+**Валидация (выполнить bash перед commit):**
+```bash
+# Проверить timestamp session-context.md
+CTX="$HOME/ds-strategy/current/session-context.md"
+if [ -f "$CTX" ]; then
+  CTX_DATE=$(date -r "$CTX" +%Y-%m-%d 2>/dev/null)
+  TODAY=$(date +%Y-%m-%d)
+  if [ "$CTX_DATE" != "$TODAY" ]; then
+    echo "❌ Session Context НЕ обновлён сегодня ($CTX_DATE)."
+    echo "   Запиши ход мысли в session-context.md перед commit."
+    exit 1
+  fi
+  echo "  ✓ session-context.md: $CTX_DATE"
+else
+  echo "  ⚠ session-context.md отсутствует. Создай заглушку."
+fi
+```
+
+Этот же чек встроен в `close-gate.sh` (G7) — выполняется автоматически при Close.
+
 ---
 
 ### Шаг 3. Обновить контекст РП (Handoff)

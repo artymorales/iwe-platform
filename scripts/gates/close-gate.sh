@@ -21,6 +21,26 @@ fi
 echo "=== G7 Close Gate: $DATE ==="
 echo ""
 
+# 0. Session Context Gate (БЛОКИРУЮЩЕЕ) — проверка перед commit
+CTX="$STRATEGY_DIR/current/session-context.md"
+if [ -f "$CTX" ]; then
+  CTX_DATE=$(date -r "$CTX" +%Y-%m-%d 2>/dev/null || echo "unknown")
+  if [ "$CTX_DATE" != "$DATE" ]; then
+    echo "  ❌ Session Context Gate: session-context.md не обновлён сегодня!"
+    echo "     Последнее обновление: $CTX_DATE, сегодня: $DATE"
+    echo "     Запиши ход мысли перед закрытием (close.md §2.6)."
+    echo ""
+    echo "     Для ручного обновления:"
+    echo "       vim $CTX"
+    echo ""
+    exit 1
+  fi
+  echo "  ✓ Session Context: обновлён $CTX_DATE"
+else
+  echo "  ⚠ Session Context: файл отсутствует. Создай заглушку (session-context.md §Создание)."
+fi
+echo ""
+
 DIRTY_COUNT=0
 PUSHED_COUNT=0
 
