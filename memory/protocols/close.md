@@ -170,15 +170,7 @@ fi
 Проверить: есть ли незаписанные architectural/strategic решения за сессию?
 Если да → добавить в контекстный файл.
 
-### Шаг 5. Session Log
-
-Сессия уже записана в `## Лог сессий` контекстного файла РП (work.md §2a).
-Дополнительно — для сводного аудита:
-```bash
-echo "YYYY-MM-DD HH:MM–HH:MM | WP-N | done/in_progress | модель" >> ~/ds-strategy/inbox/session-log.md
-```
-
-### Шаг 5.5 Service Catalog — проверить
+### Шаг 5. Service Catalog — проверить
 
 Если в сессии был «новый сервис / не связано с существующими» (work.md §0) —
 проверить: нужно ли добавить строку в `~/iwe-platform/memory/service-catalog.md`?
@@ -249,9 +241,9 @@ bash ~/iwe-platform/scripts/skills/creative-pipeline.sh resolve-captures
 
 ---
 
-### Шаг 1. Проверить все открытые сессии
-- Есть ли незакрытые сессии в `session-log.md`?
-- Если да — выполнить Quick Close для каждой
+### Шаг 1. Проверить session-context.md
+- Если `session-context.md` старше даты последнего Day Close — была незакрытая сессия
+- Если обнаружена — восстановить контекст по git log и истории чата, записать
 
 ### Шаг 2. WakaTime + метрики (если доступно)
 - Проверить: есть ли WakaTime API key в окружении
