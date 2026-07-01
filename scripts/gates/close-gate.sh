@@ -23,19 +23,27 @@ echo ""
 
 # 0. Session Context Gate (БЛОКИРУЮЩЕЕ) — проверка перед commit
 CTX="$STRATEGY_DIR/current/session-context.md"
+# При закрытии предыдущего дня (OVERRIDE_DATE) — проверяем mtime против override-даты
+CTX_CHECK_DATE="${OVERRIDE_DATE:-$DATE}"
 if [ -f "$CTX" ]; then
   CTX_DATE=$(date -r "$CTX" +%Y-%m-%d 2>/dev/null || echo "unknown")
-  if [ "$CTX_DATE" != "$DATE" ]; then
-    echo "  ❌ Session Context Gate: session-context.md не обновлён сегодня!"
-    echo "     Последнее обновление: $CTX_DATE, сегодня: $DATE"
-    echo "     Запиши ход мысли перед закрытием (close.md §2.6)."
-    echo ""
-    echo "     Для ручного обновления:"
-    echo "       vim $CTX"
-    echo ""
-    exit 1
+  if [ "$CTX_DATE" != "$CTX_CHECK_DATE" ]; then
+    if [ -n "${OVERRIDE_DATE:-}" ]; then
+      echo "  ⚠ Session Context Gate (OVERRIDE): session-context.md обновлён $CTX_DATE, закрываем $CTX_CHECK_DATE"
+      echo "     → override-режим: пропускаем проверку (закрытие предыдущего дня)"
+    else
+      echo "  ❌ Session Context Gate: session-context.md не обновлён сегодня!"
+      echo "     Последнее обновление: $CTX_DATE, сегодня: $DATE"
+      echo "     Запиши ход мысли перед закрытием (close.md §2.6)."
+      echo ""
+      echo "     Для ручного обновления:"
+      echo "       vim $CTX"
+      echo ""
+      exit 1
+    fi
+  else
+    echo "  ✓ Session Context: обновлён $CTX_DATE"
   fi
-  echo "  ✓ Session Context: обновлён $CTX_DATE"
 else
   echo "  ⚠ Session Context: файл отсутствует. Создай заглушку (session-context.md §Создание)."
 fi

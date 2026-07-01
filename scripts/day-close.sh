@@ -6,12 +6,17 @@ set -euo pipefail
 IWE_DIR="${IWE_DIR:-$HOME/iwe-platform}"
 STRATEGY_DIR="${STRATEGY_DIR:-$HOME/ds-strategy}"
 KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/ds-knowledge-index}"
-DATE=$(date +%Y-%m-%d)
-
-echo "=== Закрытие дня: $DATE ==="
+if [ -n "${OVERRIDE_DATE:-}" ]; then
+  DATE="$OVERRIDE_DATE"
+  echo "=== Закрытие дня: $DATE (OVERRIDE) ==="
+else
+  DATE=$(date +%Y-%m-%d)
+  echo "=== Закрытие дня: $DATE ==="
+fi
 echo ""
 
 # 1. Проверка: есть ли заметка дня?
+PREV_DATE_OVERRIDE="${OVERRIDE_DATE:-}"
 DAYNOTE="$STRATEGY_DIR/current/day-${DATE}.md"
 if [ ! -f "$DAYNOTE" ]; then
   echo "  ⚠ Нет заметки дня. Создаю..."

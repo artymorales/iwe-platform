@@ -66,7 +66,7 @@ HAS_CLOSE_COMMIT=false
 # Проверяем коммиты day-close за предыдущий рабочий день во всех репо
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
-    CLOSE_LOG=$(cd "$repo" && git log --since="${PREV_DATE}T00:00" --until="${DATE}T00:00" --oneline --grep="day-close" 2>/dev/null | head -1 || true)
+    CLOSE_LOG=$(cd "$repo" && git log --since="${PREV_DATE}T00:00" --until="${DATE}T00:00" --oneline --grep="day-close\|close-gate" 2>/dev/null | head -1 || true)
     if [ -n "$CLOSE_LOG" ]; then
       HAS_CLOSE_COMMIT=true
       echo "  ✓ Close найден в $(basename "$repo"): ${CLOSE_LOG:0:60}"
@@ -100,10 +100,8 @@ if [ "$HAS_CLOSE_COMMIT" = false ]; then
 
   if [ "$CHOICE" = "1" ]; then
     echo ""
-    echo "  Запускаю day-close.sh для $PREV_DATE…"
-    # Переопределяем DATE на предыдущий день для day-close.sh
+    echo "  Запускаю day-close.sh с OVERRIDE_DATE=$PREV_DATE…"
     export OVERRIDE_DATE="$PREV_DATE"
-    # day-close.sh должен поддерживать OVERRIDE_DATE (если нет — запустится с текущей датой)
     bash "$IWE_DIR/scripts/day-close.sh" || echo "  ⚠ day-close.sh завершился с ошибкой, продолжаю day-open"
     unset OVERRIDE_DATE
   elif [ "$CHOICE" = "2" ]; then
@@ -293,4 +291,8 @@ for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
 done
 
 echo ""
-echo "=== День открыт ==="}]}
+echo "=== День открыт ==="
+echo ""
+echo "AGENT: Прочитай WeekPlan на эту неделю, последний DayPlan и WP-REGISTRY."
+echo "Заполни DayPlan на сегодня конкретными задачами из WeekPlan + «задел на завтра» из предыдущего DayPlan."
+echo "Предложи пользователю готовый план. Не жди явной команды «составь план»."}]}
