@@ -41,7 +41,7 @@ echo ""
 echo "--- Итоги недели $CUR_WEEK ---"
 echo "  → Выполни §6 strategy-protocol.md (Week Review):"
 echo "    сбор коммитов по репо, completion rate, калибр план/факт, carry-over"
-echo "    Запиши секцию «Итоги W$CUR_WEEK» в текущий WeekPlan"
+echo "    Запиши секцию «Итоги W${CUR_WEEK}» в текущий WeekPlan"
 echo ""
 
 # 3. Создание WeekPlan на следующую неделю
@@ -78,4 +78,4 @@ echo "  - Разобрать inbox в ds-strategy"
 echo "  - Провести Capture-to-Pack по накопленным знаниям"
 echo ""
 
-echo "=== Неделя $CUR_WEEK закрыта ==="
+echo "=== Неделя ${CUR_WEEK} закрыта ==="
