@@ -1,3 +1,5 @@
 .aethon
 .git
 .DS_Store
+.obsidian/
+**/.obsidian/
