@@ -3,12 +3,14 @@ type: architecture-recommendation
 wp: WP-43
 status: proposed
 created: 2026-07-14
+updated: 2026-07-15
 bounded_context: personal intellectual work with AI agents
 source_fpf_edition: July 2026
+source_loop_engineering: asixiv-curated-2606.00001
 verification_class: problem-framing
 ---
 
-# IWE после FMT: целевая архитектура Personal Agent Harness на основании FPF
+# IWE после FMT: целевая архитектура Personal Agent Harness на основании FPF и Loop Engineering
 
 ## Резюме решения
 
@@ -19,13 +21,22 @@ verification_class: problem-framing
 - **PACK-digital-platform / PACK-personal** — доменные framework-источники, из которых следует осознанно заимствовать принципы и паттерны;
 - **FMT** — одна реализация IWE под другой toolchain; полезна как reference implementation, но не как upstream, который нужно догонять;
 - **ваша IWE** — локальная рабочая система и одновременно собственный **Local Practice Framework** для пары «человек + агент»;
-- **harness** — исполняемая часть этой системы: контекстная сборка, gates, hooks, инструменты, журнал фактов и recovery.
+- **harness** — исполняемая часть одной агентской сессии: контекстная сборка, tools, gates, recovery и критерий `done`;
+- **loop runtime** — слой над harness, который сам обнаруживает ограниченную работу, запускает harness снова, проверяет результат, сохраняет состояние и планирует следующий turn.
 
 Целевая формула:
 
-> **FPF Core → доменные PACK-источники → Personal IWE Local Practice Framework → исполняемый harness Pi/Aethon → evidence → улучшение следующей версии.**
+> **FPF Core → доменные PACK-источники → Personal IWE Local Practice Framework → single-run harness Pi/Aethon → bounded loop runtime → evidence → улучшение следующей версии.**
 
-Главный архитектурный ход: перестать наращивать инструкции и начать компилировать выбранные правила в исполняемые, наблюдаемые и проверяемые механизмы. При этом не превращать всю работу в gates и формы: FPF прямо требует добавлять harness-операции только тогда, когда ожидаемое улучшение оправдывает стоимость и трение.
+Главный архитектурный ход: перестать наращивать инструкции и начать компилировать выбранные правила в исполняемые, наблюдаемые и проверяемые механизмы. После чтения статьи о loop engineering решение уточняется: **сначала нужно сделать надёжным один запуск harness, и только затем поднимать над ним автономно повторяющийся loop**. Loop без независимой проверки, persistent state, budget caps и человеческой точки решения не умножает качество — он умножает невыявленную ошибку.
+
+Статья добавляет к исходной рекомендации пять обязательных изменений:
+
+1. отделить **execution loop** агента от еженедельного **harness improvement loop**;
+2. ввести `LoopDefinition` как отдельный рабочий контракт, а не cron с большим prompt;
+3. структурно разделить generator, evaluator и deterministic gates;
+4. измерять не только качество одного run, но и время жизни ошибки между turns;
+5. сохранять человека вне внутреннего цикла, но внутри governance loop — с постоянной точкой `approve/reject/stop`.
 
 Статус этого документа — **рекомендация и заполненный кандидат PFAD**, а не утверждённая архитектура и не реализованный runtime.
 
@@ -39,7 +50,8 @@ verification_class: problem-framing
 |---|---|---|---|
 | **Personal IWE Work System** | работающая социотехническая система | пользователь, Pi agent, Aethon, Codex, репозитории, инструменты, реальные сессии | AGENTS.md, диаграмма или набор скриптов |
 | **Personal IWE Local Practice Framework** | episteme / локальный principle framework | повторяющиеся problem situations, solution moves, границы, failure modes, проверки, refresh | FPF Core, копия PACK или дерево файлов |
-| **Agent harness** | исполняемая часть рабочей системы | context selection, hooks, gates, call planning, budgets, telemetry, recovery | один prompt или один loop |
+| **Agent harness** | исполняемая часть одного run | context selection, hooks, gates, call planning, tools, recovery, `done` | один prompt или recurring loop |
+| **Loop orchestrator** | повторяющийся runtime над harness | trigger, discovery, handoff, verification, persistence, scheduling, circuit breakers | сам harness, cron-строка или бесконечный retry |
 | **Method descriptions** | описания способов работы | протоколы Open/Work/Close, инструкции, skills | фактически выполненная работа |
 | **Work plans** | намерение выполнить работу | WeekPlan, DayPlan, TaskFrame, CallPlan | выполненные tool calls и полученный результат |
 | **Work и evidence** | факты исполнения и основания | tool events, diff, tests, commit/push result, artifact, review | зелёный badge или сообщение «pass» без evidence |
@@ -56,7 +68,7 @@ verification_class: problem-framing
 
 Первичный EntityOfConcern этого WP:
 
-> **Personal IWE Work System версии 2026-07-14 в контексте личной интеллектуальной работы с Pi agent + Aethon.**
+> **Personal IWE Work System версии 2026-07-15 в контексте интерактивной и ограниченно автономной интеллектуальной работы с Pi agent + Aethon.**
 
 Вторичный объект, который нужно создать:
 
@@ -85,8 +97,43 @@ FPF использован не как общий prompt, а через конк
 2. **Локальная практика не должна незаметно становиться FPF Core.** Для неё нужен Local Practice Framework с зависимостью в сторону более устойчивых framework editions.
 3. **Публикационный carrier не равен framework.** AGENTS.md, skill pack, MCP и sidebar только дают доступ.
 4. **Gate pass не равен выполненной работе.** Нужны effective checks, их outcomes, агрегированное решение и evidence refs.
-5. **Harness loop начинается не со слова loop.** Сначала называются изменяемая версия harness и повторяемая evaluation.
+5. **Harness improvement loop начинается не со слова loop.** Сначала называются изменяемая версия harness и повторяемая evaluation.
 6. **Больше harness — не обязательно лучше.** Каждая операция должна иметь ожидаемое изменение evaluation, стоимость, failure mode и removal condition.
+
+### Что добавляет Loop Engineering
+
+[Статья о loop engineering](https://asixiv.org/pdf/curated/2606.00001) предлагает полезное operational distinction:
+
+```text
+prompt → одна инструкция
+context → одно окно
+harness → один вооружённый run
+loop → повторяющаяся система, которая снова запускает harness без человеческого tick
+```
+
+Один turn такой системы содержит пять moves:
+
+> **Discovery → Handoff → Verification → Persistence → Scheduling.**
+
+Они реализуются шестью parts: automation, work isolation, skills, connectors, generator/evaluator split и persistent memory. Для IWE полезна не привязка статьи к Claude Code, а capabilities: trigger, собственное обнаружение работы в разрешённом контуре, изолированная передача, проверка способная сказать «нет», состояние вне разговора и повторный запуск.
+
+Нельзя смешивать два разных цикла:
+
+| Цикл | Что повторяется | Частота | Кто меняет правила |
+|---|---|---|---|
+| **Agent execution loop** | обнаружить → выполнить → проверить → сохранить → запланировать | минуты/часы/дни | исполняет закреплённый `LoopDefinition`; сам не расширяет authority |
+| **Harness improvement loop** | оценить точную версию → выбрать изменение → pilot → re-evaluate | неделя и реже | человек утверждает изменение framework/runtime |
+
+Execution loop является объектом evaluation; он не должен сам переписывать evaluator, budget, human checkpoint или собственную authority boundary. Improvement loop может менять эти элементы, но только как versioned architecture decision.
+
+### Статус evidence статьи
+
+PDF обозначен как `2026 Working Note` и является conference-style синтезом открытого Orange Book guide, практических сообщений и нескольких field cases. Это сильный источник vocabulary, failure modes и design hypotheses, но не controlled study. Поэтому:
+
+- five-move model используется как **проектная модель**;
+- generator/evaluator separation принимается как **обязательный pilot hypothesis**, согласованный с maker–checker principle;
+- конкретные product commands и scale claims не становятся требованиями IWE;
+- эффективность должна подтверждаться локальной telemetry: reject rate, escaped defects, cost, human comprehension и stop behavior.
 
 ---
 
@@ -124,6 +171,20 @@ FPF использован не как общий prompt, а через конк
 | Git с 2026-06-01 | 63 + 141 + 61 commits в трёх репозиториях |
 
 Метрики являются диагностическими, а не оценкой качества пользователя или всей системы. Например, отсутствие строки `Сделано` не доказывает отсутствие работы, а количество commits не доказывает полезный результат.
+
+### Loop-readiness: система пока остаётся human-clocked
+
+В терминах статьи IWE имеет несколько частей будущего loop, но ещё не имеет полного agent execution loop:
+
+| Move | Что уже есть | Разрыв |
+|---|---|---|
+| **Discovery** | Strategy, WeekPlan, DayPlan, inbox, captures | выбор работы в основном делает человек; нет scheduled skill с узким discovery envelope |
+| **Handoff** | WP Gate, TaskFrame, роли и acceptance | нет machine-readable handoff в изолированную execution scope; worktree/branch не назначаются по task identity |
+| **Verification** | verification classes, tests, G5/G7 | generator обычно проверяет себя сам; deterministic check, adversarial evaluator и human judgement не разделены |
+| **Persistence** | три Git-репозитория, session context, DayPlan, captures | состояние записывается неатомарно; Day Close не гарантирует полный ResultRecord |
+| **Scheduling** | недельный ритм, shell scripts, Aethon buttons | это главным образом human-triggered cadence; внешний recurring trigger с persisted next-run state отсутствует |
+
+Следовательно, IWE уже является развитой **interactive harness environment**, но не автономным loop runtime. Это хорошая исходная позиция: не нужно сейчас «добавлять cron». Нужно сначала закрыть P0-дефекты одного run и доказать, что verification действительно умеет останавливать ошибку.
 
 ### Критические дефекты
 
@@ -321,6 +382,8 @@ FPF размером более 10 MB невозможно и не нужно п
 
 Эти баллы — decision aid, а не evidence результата. Вариант D должен быть проверен пилотом и re-evaluation после первой рабочей недели.
 
+Loop engineering не создаёт пятый архитектурный вариант и не отменяет выбор D. Это runtime capability поверх выбранного Local Practice Framework и single-run harness. Она **повышает acceptance floor** варианта D: framework теперь должен явно владеть loop boundary, evaluator independence, persistence, budgets, scheduling и permanent human checkpoint.
+
 ---
 
 ## 5. Кандидат Principle Framework Architecture Decision
@@ -340,6 +403,7 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
     - PACK-personal (пока только вторичные локальные captures)
     - факты и captures собственной IWE
     - FMT только как reference implementation
+    - Loop Engineering working note as design input, not normative framework
 
   selectedPatternSetRefs:
     - Work Framing
@@ -347,6 +411,7 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
     - Work Entry and Gate Decision
     - Agentic Tool-Use Planning
     - Work Continuity and Close Integrity
+    - Bounded Autonomous Loop and Independent Verification
     - Knowledge/Publication Flow
     - Harness Evaluation and Improvement
 
@@ -374,6 +439,7 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
 
   qualityEvaluationRefs:
     - Harness Evaluation Frame v0.1
+    - Loop Evaluation Frame v0.1
     - weekly QualityImprovementLoopRecord
 
   rejectedAlternatives:
@@ -387,6 +453,8 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
     - source and implementation choices become independently replaceable
     - initial migration and test cost
     - fewer but stronger gates
+    - autonomous loops are opt-in runtime profiles above a proven single-run harness
+    - loop authority, evaluator and human checkpoint are immutable within one execution edition
 
   sourceReturnConditions:
     - direct PACK source becomes mandatory before a PACK claim governs runtime
@@ -402,7 +470,7 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
 
 ### Предлагаемые первые patterns Local Practice Framework
 
-Не нужно сразу переписывать все протоколы. Первая edition должна иметь 5–7 нормальных action-guiding patterns, а не каталог тем.
+Не нужно сразу переписывать все протоколы. Первая edition должна иметь 5–8 нормальных action-guiding patterns, а не каталог тем. `BOUNDED-LOOP` включается только если появляется автономно повторяющийся execution profile.
 
 | Pattern seed | Recurring problem situation | Positive solution move | Failure mode, который блокирует |
 |---|---|---|---|
@@ -411,6 +479,7 @@ PrincipleFrameworkArchitectureDecision@PersonalIWE:
 | **LPF.WORK-ENTRY** | агент готов действовать, но readiness/gates не доказаны | внешний LaunchGate с effective checks и DecisionLog | напоминание вместо enforcement |
 | **LPF.TOOL-PLAN** | non-trivial tool use может тратить бюджет или мутировать state | CallPlan с route, budget, stop/replan; для простой работы не применять | opaque tool chain и blind retry |
 | **LPF.CLOSE-INTEGRITY** | результат есть в чате, но не восстановим и не проверяем | ResultRecord + artifact + evidence + handoff + scoped commit | commit-as-close и ложный pass |
+| **LPF.BOUNDED-LOOP** | надёжный single run хочется повторять без человеческого tick | versioned LoopDefinition: discovery envelope, isolation, deterministic checks, independent evaluator, persistent state, schedule, caps и permanent human checkpoint | blind/nodding/amnesiac/manual/tangled loop |
 | **LPF.KNOWLEDGE-FLOW** | captures накапливаются, но не меняют практику и не публикуются | source-use decision → pattern/draft/publication или explicit archive | capture hoarding |
 | **LPF.HARNESS-IMPROVEMENT** | хочется добавить ещё rule/hook/tool | назвать object version, evaluation change, cost, trade-offs и removal condition | operation-family creep |
 
@@ -431,14 +500,14 @@ flowchart TB
 
     subgraph Framework["Personal IWE Local Practice Framework"]
       PFAD["PFAD + authority matrix"]
-      PAT["5–7 local patterns"]
+      PAT["5–8 local patterns"]
       EVAL["Evaluation frame + protected trade-offs"]
       LOCK["Framework/source edition lock"]
     end
 
     subgraph Compile["Context and policy compilation"]
       ROUTER["Question → FPF/local pattern router"]
-      CTX["ContextManifest: selected + omitted + pins"]
+      CTX["ContextManifest: deterministic assembly where rule-bound"]
       TF["TaskFrame / conditional CallPlan"]
       POLICY["Gate profiles and executable checks"]
     end
@@ -448,6 +517,19 @@ flowchart TB
       HOOKS["pi-yaml-hooks"]
       AETHON["Aethon UI/access carrier"]
       TOOLS["Git, shell, MCP, files, tests"]
+    end
+
+    subgraph ExecLoop["Bounded agent execution loop — optional layer above harness"]
+      LDEF["Versioned LoopDefinition"]
+      SCHED["Trigger / scheduler"]
+      DISC["Discovery skill"]
+      HAND["TaskFrame + isolated handoff"]
+      GEN["Generator run"]
+      DET["Deterministic checks"]
+      JUDGE["Independent skeptical evaluator"]
+      LSTATE["Persistent LoopState + next action"]
+      HUMAN["Permanent human checkpoint"]
+      CAPS["Budgets / retries / kill switch"]
     end
 
     subgraph State["Work state and products"]
@@ -460,7 +542,7 @@ flowchart TB
     subgraph Evidence["Evidence and improvement"]
       EVENTS["append-only event and DecisionLog"]
       DASH["evaluation by coordinates"]
-      LOOP["bounded improvement loop"]
+      IMPROVE["bounded harness improvement loop"]
     end
 
     FPF --> PFAD
@@ -476,16 +558,34 @@ flowchart TB
     AETHON --> PI
     PI --> TOOLS --> ART
     PLAN --> TF
+    PAT --> LDEF
+    POLICY --> LDEF
+    LDEF --> SCHED --> DISC --> HAND --> GEN
+    HAND --> TF
+    GEN --> PI
+    ART --> DET --> JUDGE
+    JUDGE -- "persist every verdict" --> LSTATE
+    LSTATE -- "reject + reasons; within retry cap" --> GEN
+    LSTATE -- "accept / abstain" --> HUMAN
+    HUMAN -- "approve / reject / reframe" --> SCHED
+    CAPS -. "constrains" .-> SCHED
+    CAPS -. "constrains" .-> GEN
+    CAPS -. "constrains" .-> JUDGE
     ART --> RESULT
     ART --> KNOW
     HOOKS --> EVENTS
     TOOLS --> EVENTS
-    RESULT --> EVENTS --> DASH --> LOOP
-    LOOP --> PAT
-    LOOP --> POLICY
+    LSTATE --> EVENTS
+    DET --> EVENTS
+    JUDGE --> EVENTS
+    RESULT --> EVENTS --> DASH --> IMPROVE
+    IMPROVE --> PAT
+    IMPROVE --> POLICY
+    IMPROVE --> LDEF
     H --> PLAN
     H --> PFAD
     H --> PI
+    H --> HUMAN
     DASH --> H
 ```
 
@@ -513,6 +613,10 @@ references:
   - id: fmt
     edition: "<commit>"
     authority: "implementation_reference_only"
+  - id: loop-engineering-working-note
+    edition: "asixiv-curated-2606.00001"
+    carrier: "https://asixiv.org/pdf/curated/2606.00001"
+    authority: "design_input_only"
 ```
 
 Никакой source не становится authority только потому, что доступен через MCP или хорошо пересказан в capture.
@@ -544,6 +648,8 @@ freshness:
 ```
 
 Это одновременно решает context bloat, currentness и replay.
+
+Loop engineering усиливает implementation rule: всё, что можно надёжно определить обычной программой — repo/branch, source pins, changed paths, budgets, allowlists, test commands, уже открытые candidates — собирается **детерминированным pre-agent orchestrator**. LLM получает готовые материалы и решает только семантически неоднозначную часть. Нельзя поручать агенту «самому найти весь нужный контекст», а затем тем же агентом подтверждать, что он ничего не пропустил.
 
 ### 6.3 TaskFrame
 
@@ -648,7 +754,106 @@ Aethon остаётся хорошим human-facing access carrier, но sidebar
 
 Если Aethon API не умеет безопасно исполнять command напрямую, prompt-вызов можно оставить как UX shortcut, но явно маркировать его как **request**, а не как выполненный protocol.
 
-### 6.8 Репозитории
+### 6.8 LoopDefinition — контракт автономного повторения
+
+Schedule не должен содержать скрытый wall-of-prompt. Он ссылается на versioned skill и отдельный machine-readable contract:
+
+```yaml
+loop_id: iwe-maintenance-proposal
+edition: 0.1-proposed
+owner: amorales
+purpose: "найти и подготовить один проверяемый maintenance fix для IWE"
+
+trigger:
+  kind: schedule
+  cadence: weekly
+
+discovery:
+  skill_ref: iwe-maintenance-triage@0.1
+  sources: [gate_log, smoke_tests, protocol_drift, broken_links]
+  max_candidates: 3
+  selection_rule: "highest evidence-backed severity within authority"
+
+authority:
+  may_read: [platform, strategy_current]
+  may_mutate: [isolated_platform_worktree]
+  never: [merge, push, delete, change_strategy, rewrite_loop_definition]
+
+handoff:
+  result_kind: patch_candidate
+  isolation: one_worktree_per_candidate
+  max_active_candidates: 1
+
+verification:
+  deterministic: [targeted_tests, diff_scope, markdown_links]
+  evaluator_ref: iwe-skeptical-reviewer@0.1
+  evaluator_context: fresh
+  human_checkpoint: required_before_merge
+
+persistence:
+  state_ref: loop-state/iwe-maintenance-proposal.yaml
+  candidate_ref: inbox/loop-candidates/<run-id>.md
+
+budgets:
+  wall_time: 30m
+  generator_evaluator_cycles: 2
+  parallel_agents: 1
+  daily_token_cap: "<set-after-baseline>"
+
+stop:
+  on: [budget_exhausted, ambiguous_authority, repeated_reject, dirty_scope_expansion]
+  action: persist_and_wait_for_human
+```
+
+Обязательный invariant: execution turn может обновить только `LoopState` и разрешённый candidate artifact. Он не может менять собственные discovery rules, evaluator, budgets, stop policy или human checkpoint. Эти изменения принадлежат harness improvement loop и требуют новой edition.
+
+### 6.9 Verification stack: checks, evaluator, человек
+
+Статья справедливо усиливает исходную идею внешнего наблюдателя. Для IWE одного «второго агента» недостаточно; нужны три основания решения:
+
+| Слой | Для чего | Что не следует ему поручать |
+|---|---|---|
+| **Deterministic checks** | syntax, tests, paths, diff scope, budgets, policy invariants | semantic judgement, архитектурный выбор |
+| **Independent evaluator** | adversarial review результата против TaskFrame/acceptance; проверка действием через tools | исправлять и одновременно сертифицировать собственную правку |
+| **Human checkpoint** | цель, trade-offs, архитектурное/стратегическое judgement, принятие остаточного риска | повторять все механические проверки вручную |
+
+Evaluator получает candidate и acceptance, но не chain-of-thought/self-justification generator. Желательно другое model/configuration profile и свежий context. Его verdict:
+
+```yaml
+candidate_ref: "..."
+checks_observed: ["..."]
+verdict: accept | reject | abstain
+reasons: ["..."]
+evidence_refs: ["test://...", "diff://..."]
+confidence: low | medium | high
+next_action: human_review | regenerate | stop
+```
+
+Правила:
+
+1. `accept` невозможен без evidence для всех обязательных checks;
+2. `abstain` не превращается в pass — candidate идёт человеку;
+3. если evaluator изменил candidate, он стал generator; новую версию проверяет свежий evaluator;
+4. rejection rate сам по себе не доказывает качество: evaluator калибруется на небольшой human-labelled sample;
+5. ни model, ни evaluator не могут обойти hard gate или увеличить budget.
+
+### 6.10 Первый loop для IWE: maintenance proposal, не strategy autopilot
+
+Первым автономным loop не должен быть Day Planning, Strategy Session, note synthesis или публикация знаний: там высока доля человеческого judgement, а ошибка быстро становится частью будущего контекста.
+
+Рекомендуемый pilot — **еженедельный IWE maintenance proposal loop**:
+
+1. **Discovery:** найти до трёх наблюдаемых проблем — failed gate, сломанный smoke test/link, drift между protocol и script, ложный `pass`.
+2. **Handoff:** выбрать одну проблему с дешёвой acceptance и открыть отдельный worktree.
+3. **Generation:** подготовить один ограниченный patch candidate.
+4. **Verification:** прогнать deterministic tests; fresh evaluator пытается опровергнуть исправление и проверяет diff scope.
+5. **Persistence:** записать state, evidence и candidate в inbox; rejected candidate также сохраняется как evidence.
+6. **Scheduling:** следующий run начинается с предыдущего state и не дублирует уже открытый candidate.
+7. **Human checkpoint:** человек решает `merge / reject / reframe`; автоматический merge и push запрещены.
+
+Pilot начинает с одного агента и одного candidate. Parallelism добавляется последним — только после того, как evaluator несколько раз поймал реальные дефекты, stop сработал корректно, а comprehension floor не нарушен.
+
+### 6.11 Репозитории
 
 Рекомендую после стабилизации gates перейти к одному private monorepo для Personal IWE implementation:
 
@@ -675,13 +880,15 @@ Arch Gate для consolidation: 8 / 7 / 8 / 8 / 7 / 8 / 7, среднее 7.6, �
 ```text
 ObjectVersionUnderQualityEvaluation:
   Personal IWE Harness @ baseline-2026-07-14
+  optional Personal IWE Agent Loop @ exact pilot edition
 
 Purpose:
   floorEvaluation + candidateImprovementProposalEvaluation
 
 ImprovementAim:
   повысить надёжность постановки, context selection, enforcement,
-  recovery и quality of accepted work при меньшем ритуальном трении
+  recovery и quality of accepted work при меньшем ритуальном трении;
+  для loop profile — сократить error survival distance без потери judgement
 
 ProtectedTradeoffs:
   human judgement, autonomy, simplicity, privacy, portability,
@@ -692,7 +899,8 @@ QualificationWindow:
 
 NonUseBoundary:
   не оценивать компетентность пользователя по числу commits/captures;
-  не считать hook invocation доказательством результата
+  не считать hook invocation, agent activity или число generated artifacts
+  доказательством результата
 ```
 
 ### Coordinates и floors
@@ -714,7 +922,37 @@ NonUseBoundary:
 | **Externalized thinking** | проверяемый текст/ADR/capture/publication | ≥1 meaningful artifact/week |
 | **Portability** | local framework не содержит vendor semantics в core patterns | Pi/Aethon bindings вынесены в runtime profile |
 
-### Improvement loop
+### Дополнительные coordinates для autonomous loop profile
+
+Loop нельзя оценивать теми же activity proxies, что и один run. Его главный риск — ошибка, пережившая несколько turns и записавшая себя в memory как факт.
+
+| Coordinate | Как наблюдать | Pilot floor |
+|---|---|---|
+| **Discovery precision** | доля candidates, которые human review признал реальной и уместной работой | ≥70% после первых 10 runs; до этого — calibration data |
+| **Independent verification coverage** | candidate проверен fresh evaluator, не generator | 100% candidates |
+| **Evaluator usefulness** | evaluator нашёл подтверждённый дефект либо дал evidence-backed accept/abstain | каждый verdict с evidence; 0 безусловных похвал |
+| **Error survival distance** | turns от появления failing evidence до stop/reject | 0 переходов в следующий turn после mandatory failure |
+| **Verification debt** | принятые candidates без независимой проверки и human checkpoint | 0 |
+| **Persistence continuity** | следующий run читает state, не дублирует открытый candidate и объясняет next action | 100% resumptions |
+| **Budget boundedness** | превышение wall-time/token/retry/parallel caps | 0 overruns; cap реально останавливает run |
+| **Controllability** | kill switch, abstain и human wait-path проходят fixture test | 100% перед первым unattended run |
+| **Comprehension retention** | человек объясняет purpose, mechanism и risk случайной выборки accepted changes | ≥80%; непонятый change не принимается |
+| **Judgement boundary** | strategy, architecture, publication и merge требуют human decision | 100% |
+
+После 10 substantive candidates отсутствие хотя бы одного `reject` или `abstain` — не автоматическое доказательство дефекта evaluator, но обязательный calibration trigger: проверить слишком лёгкий workload, утечку generator context и критерии verdict.
+
+### Реестр четырёх loop debts
+
+Статья выделяет четыре взаимно усиливающихся стоимости. В IWE они распространяются не только на code, но и на планы, captures, architecture claims и публикации.
+
+| Debt | Ранний сигнал | Guard в IWE |
+|---|---|---|
+| **Verification debt** | outputs растут быстрее evidence; evaluator почти всегда согласен | независимый evaluator + hard checks + запрет auto-merge/publication |
+| **Comprehension rot** | владелец не может объяснить случайный accepted artifact | еженедельная semantic sample review; непонятное не считается принятым |
+| **Cognitive surrender** | человек выбирает default loop output без собственной позиции | permanent checkpoint на strategy/architecture/publication; явный `reject/reframe` |
+| **Token blowout** | retries/sub-agents растут без нового evidence | per-run и period caps, max cycles, max parallelism, kill switch |
+
+### Harness improvement loop
 
 Раз в неделю:
 
@@ -754,7 +992,7 @@ Acceptance:
 - [ ] утвердить/скорректировать PFAD-IWE-001;
 - [ ] создать authority matrix;
 - [ ] создать `sources.lock.yaml`;
-- [ ] оформить 5–7 pattern seeds, начать с WORK-FRAME, CONTEXT-ASSEMBLY и CLOSE-INTEGRITY;
+- [ ] оформить 5–8 pattern seeds, начать с WORK-FRAME, CONTEXT-ASSEMBLY и CLOSE-INTEGRITY; BOUNDED-LOOP оставить inactive до pilot;
 - [ ] отметить все intake-термины (`SPF`, `TPF`, Pack-as-truth) как provisional/legacy aliases;
 - [ ] создать evaluation frame и baseline;
 - [ ] не переписывать все старые protocols до evaluation.
@@ -772,13 +1010,30 @@ Acceptance:
 - [ ] создать ContextManifest generator и FPF pattern extractor;
 - [ ] Aethon sidebar направить на те же entrypoints;
 - [ ] вести append-only event log, не смешивать его с governance decisions;
+- [ ] разделить deterministic checks, generator и fresh evaluator хотя бы на одном типе работы;
+- [ ] fixture-тестом доказать `reject`, `abstain`, budget stop и human wait-path;
 - [ ] провести минимум 10 pilot sessions.
 
 Acceptance:
 
 > Н31 проверяется наблюдаемым событием: до первой mutation загружен релевантный protocol/pattern slice, а отсутствие slice блокирует или деградирует переход согласно profile.
 
-### Фаза 3 — Simplify and migrate (4–8h)
+### Фаза 3 — Первый bounded execution loop (4–6h + 10 runs)
+
+- [ ] утвердить `LoopDefinition@iwe-maintenance-proposal-0.1`;
+- [ ] schedule вызывает versioned discovery skill, а не embedded prompt;
+- [ ] использовать один candidate и один isolated worktree на run;
+- [ ] добавить persistent `LoopState` и duplicate suppression;
+- [ ] установить wall-time, token, retry и parallelism caps до первого unattended run;
+- [ ] запретить auto-merge, push, strategy changes и self-modification;
+- [ ] провести 10 runs, начиная с manual trigger; recurring schedule включить только после успешных stop tests;
+- [ ] human review классифицирует candidates и evaluator verdicts для calibration.
+
+Acceptance:
+
+> Loop один раз проходит все five moves, умеет остановиться по четырём разным причинам, не переносит mandatory failure в следующий turn и оставляет человеку merge/reframe decision.
+
+### Фаза 4 — Simplify and migrate (4–8h)
 
 - [ ] удалить/сжать дублирующие rules после того, как runtime их реально обеспечивает;
 - [ ] AGENTS.md оставить slim entry carrier: triggers, authority routing, hard boundaries;
@@ -791,12 +1046,14 @@ Acceptance:
 
 > Каждое обязательное правило имеет одного owner, одну runtime binding или явный human judgement boundary и одну evidence route.
 
-### Фаза 4 — Weekly improvement
+### Фаза 5 — Weekly improvement
 
-- [ ] каждую неделю re-evaluate exact harness version;
+- [ ] каждую неделю re-evaluate exact harness и active LoopDefinition editions;
 - [ ] максимум два improvement proposals;
 - [ ] фиксировать what became worse;
 - [ ] удалять неэффективные checks;
+- [ ] читать и объяснять случайную semantic sample принятых loop artifacts;
+- [ ] вести verification/comprehension/token debt register;
 - [ ] reopen PFAD только при изменении framework family, pattern split, publication/access architecture или dependency boundary.
 
 ---
@@ -808,11 +1065,11 @@ Acceptance:
 | Время | Работа | Result |
 |---:|---|---|
 | 0.5h | зафиксировать baseline и source limitations | baseline evaluation + `potentially_stale` note |
-| 0.75h | принять PFAD/authority matrix | один framework decision candidate |
+| 0.5h | принять PFAD/authority matrix и различение двух loops | один framework decision candidate |
 | 1.0h | исправить Close truthfulness и scoped commit | безопасный Close floor |
-| 1.0h | включить два pilot hooks: SessionEntry + Close readiness | внешние наблюдатели для Н31 и Close |
-| 0.5h | smoke test на fixture workspace | evidence для pass/degrade/block |
-| 0.25h | capture + handoff + следующий proposal | replayable close |
+| 0.75h | включить два pilot hooks: SessionEntry + Close readiness | внешние наблюдатели для Н31 и Close |
+| 0.75h | evaluator contract + reject/abstain fixture | первая независимая verification boundary |
+| 0.5h | smoke test + capture/handoff | evidence и replayable close |
 
 Не брать в W29:
 
@@ -820,6 +1077,8 @@ Acceptance:
 - переписывание всех protocols;
 - создание полноценного Pack;
 - все восемь gates;
+- unattended recurring execution loop;
+- parallel agents и auto-merge;
 - dashboard и сложные метрики;
 - FPF RAG/vector index до появления реальной search pressure.
 
@@ -837,6 +1096,9 @@ Acceptance:
 8. **Не оценивать IWE числом файлов, commits и captures.** Это telemetry, не value.
 9. **Не смешивать migration, repair и framework redesign в одной транзакции.**
 10. **Не автоматизировать human judgement.** Архитектурный/стратегический выбор остаётся явной ролью пользователя.
+11. **Не ставить scheduler над ненадёжным single-run harness.** Повторение увеличивает blast radius текущих P0/P1-дефектов.
+12. **Не позволять generator сертифицировать себя.** Self-review полезен как подготовка, но не как окончательный verdict.
+13. **Не считать human checkpoint временными колёсами.** Для strategy, architecture, publication и merge это постоянная ownership boundary.
 
 ---
 
@@ -851,6 +1113,9 @@ Acceptance:
 | монорепо смешает чувствительные данные | мигрировать только при одинаковой access policy; иначе оставить split и добавить transaction coordinator |
 | evaluation станет самоцелью | floors, не один score; не более двух changes/week; защищать friction и human judgement |
 | сильный агент обойдёт слабые правила | critical boundaries исполняет внешний runtime; agent explanation не заменяет decision |
+| evaluator станет ритуальным «вторым мнением» | fresh context, action-based checks, `abstain`, calibration на human-labelled sample |
+| loop ускорит verification/comprehension debt | один candidate, permanent human checkpoint, semantic sampling, debt register |
+| scheduler будет повторять неверную premise | immutable LoopDefinition, persisted evidence, error-survival floor и kill switch |
 
 ---
 
@@ -870,6 +1135,10 @@ Acceptance:
 - [`scripts/gates/commit-gate.sh`](scripts/gates/commit-gate.sh);
 - [публичный FMT repository](https://github.com/TserenTserenov/FMT-exocortex-template) как текущий reference implementation.
 
+### Внешний design input
+
+- [HuaShu, *Loop Engineering: The Anthropic Playbook for Designing Systems That Prompt Your Agents — A Field Study of Designing Loops That Run Themselves*](https://asixiv.org/pdf/curated/2606.00001), 2026 Working Note, 11 pages. Использованы four-layer stack, five moves, generator/evaluator split, failure modes, debt model и first-loop safeguards.
+
 ### Источники из DS
 
 - `/Users/amorales/ds-strategy/current/weekplan-2026-W29.md`;
@@ -888,6 +1157,8 @@ Acceptance:
 3. `PACK-personal` не был доступен напрямую. Выводы о нём опираются на локальные captures и должны быть проверены после подключения source.
 4. Публичный `PACK-digital-platform` не удалось открыть как прямой current source; PACK-claims в этом документе не считаются нормативно проверенными.
 5. Рекомендация основана на статическом аудите и истории artifacts. Она требует pilot telemetry и re-evaluation, прежде чем объявлять harness улучшенным.
+6. Loop Engineering PDF является вторичным field synthesis, а не controlled study или нормативной спецификацией. Его модели приняты как проверяемые design hypotheses.
+7. При обновлении 2026-07-15 репозиторий содержал pre-existing `slow-reading/`; pull не выполнялся, этот path не затрагивался, локальное состояние считалось potentially stale.
 
 ---
 
@@ -895,7 +1166,6 @@ Acceptance:
 
 Ваша IWE уже переросла FMT-fork, но пока не оформила собственную архитектурную идентичность. Поэтому система колеблется между тремя режимами: наследовать FMT, ссылаться на PACK и добавлять локальные rules. FPF показывает более точный выход:
 
-> **Создать собственный Local Practice Framework, отделить его от runtime carriers, закрепить источники и claims, скомпилировать критические boundaries в hooks, а качество harness улучшать только через повторяемую evaluation фактических результатов.**
+> **Создать собственный Local Practice Framework, отделить его от runtime carriers, закрепить источники и claims, скомпилировать критические boundaries в hooks, доказать надёжность single-run harness и только затем запускать над ним ограниченные execution loops.**
 
-Первый приоритет — не новый Pack и не новый каталог принципов. Первый приоритет — **правдивый Close, task-scoped mutations, WorkspaceSnapshot и два внешних transition gates**. После этого можно осмысленно упрощать protocols, подключать PACK и решать consolidation.
-
+Первый приоритет — не новый Pack, не новый каталог принципов и не scheduler. Первый приоритет — **правдивый Close, task-scoped mutations, WorkspaceSnapshot, два внешних transition gates и независимая verification boundary**. После этого первый автономный pilot должен заниматься только IWE maintenance proposals: один candidate, один worktree, жёсткие caps, fresh evaluator и обязательный human checkpoint.
