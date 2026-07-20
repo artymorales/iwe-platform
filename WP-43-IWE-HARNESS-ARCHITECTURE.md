@@ -3,11 +3,20 @@ type: composite-decision-support-carrier
 wp: WP-43
 status: proposed_for_human_decision
 created: 2026-07-14
-updated: 2026-07-17
+updated: 2026-07-20
 bounded_context: personal intellectual work with AI agents
 primary_current_result_ref: PAD-IWE-001
 primary_current_result_kind: ArchitectureDecisionRelation@Project
 primary_next_move_recipient: amorales
+naming_decision_ref: NAME-IWE-001
+system_short_name: IWE
+system_full_name: Personal Intellectual Work Environment
+system_description: "Personal Intellectual Work Environment — a human-directed environment coordinating agents, knowledge, protocols, and work execution"
+system_technical_identifier: PersonalIWE
+root_repository_name: iwe
+root_repository_description: "Personal Intellectual Work Environment — control center, protocols, and agent harness"
+root_repository_current_checkout: /Users/amorales/iwe-platform
+root_repository_rename_status: decided_not_yet_executed
 source_fpf_edition: July 2026
 source_loop_engineering: asixiv-curated-2606.00001
 source_pack_personal_commit: 81f20ac7f7cbae9aedef3a6b8b3771acd5f3d0e5
@@ -15,13 +24,78 @@ source_pack_digital_platform_commit: c924cee6fb01247cbed5b411d1387194b007b4f0
 verification_class: problem-framing
 ---
 
-# Кандидат архитектурного решения личной IWE и управляющей оболочки агента
+# Кандидат архитектурного решения IWE — Personal Intellectual Work Environment — и управляющей оболочки агента
 
 ## 0. Какой результат этого документа сейчас требует решения
 
 Этот файл — **составной носитель**, а не один результат FPF. В нём рядом опубликованы
 несколько записей разных видов. Они связаны одной архитектурной работой, но не могут
 заменять друг друга.
+
+### Зафиксированное именование
+
+Командой владельца от 2026-07-20 приняты два самостоятельных результата именования.
+Они уже не являются кандидатами внутри общего архитектурного предложения, однако
+решение об имени репозитория само по себе не означает, что локальный каталог и
+удалённый репозиторий уже физически переименованы.
+
+| Поле | Имя системы | Имя корневого репозитория |
+|---|---|---|
+| **Текущий вопрос** | Какое устойчивое краткое и полное имя использовать для личной интеллектуальной рабочей среды? | Как назвать корневой репозиторий, содержащий локальный каркас практики, Control Center, правила и исполнительные средства IWE? |
+| **`EntityOfConcern`** | `PersonalIWE@amorales` | `RootRepository@PersonalIWE` |
+| **Применённый `Solution`** | `F.18 — Naming an Entity Without Creating a New Ontology` | `F.18 — Naming an Entity Without Creating a New Ontology` |
+| **Точный вид результата** | `NameCard` `NAME-IWE-001` | `NameCard` `NAME-REPO-IWE-001` |
+| **Принятое имя** | краткое имя `IWE`; полное имя `Personal Intellectual Work Environment`; технический идентификатор `PersonalIWE` | `iwe`; ожидаемое удалённое имя `amorales/iwe` |
+| **Описание системы** | `Personal Intellectual Work Environment — a human-directed environment coordinating agents, knowledge, protocols, and work execution` | не применяется: репозиторий является только одной частью распределённой IWE |
+| **Описание репозитория** | не применяется: описание репозитория не является полным именем системы | `Personal Intellectual Work Environment — control center, protocols, and agent harness` |
+| **Состояние** | `acceptedByOwner` | `acceptedByOwner`; физическое переименование `notYetExecuted` |
+| **Получатель следующего хода** | все архитектурные описания, интерфейсы и рабочие продукты IWE | отдельная проверяемая миграция пути, удалённого имени и ссылок; до неё действует `/Users/amorales/iwe-platform` |
+
+```yaml
+systemNameCard:
+  nameCardId: NAME-IWE-001
+  governedValueRef: PersonalIWE@amorales
+  governingPatternRef: F.18
+  techLabel: IWE
+  fullLabelEn: Personal Intellectual Work Environment
+  familyLabelEn: Intellectual Work Environment
+  systemDescriptionEn: Personal Intellectual Work Environment — a human-directed environment coordinating agents, knowledge, protocols, and work execution
+  systemDescriptionRu: Личная среда интеллектуальной работы, координирующая человека, агентов, знания, протоколы и исполнение
+  technicalIdentifier: PersonalIWE
+  plainLabelRu: личная среда интеллектуальной работы
+  candidateSet: [IWE, PersonalIWE, ExoIWE, PIWE/OS]
+  selectionRationale: >
+    IWE сохраняет вид системы и не перегружает имя метафорами управляющего центра,
+    экзоскелета или операционной системы; Personal относится к полному имени данного
+    экземпляра, а не создаёт новый вид системы.
+  blockedUse:
+    - не называть IWE только агентом, Control Center или программной оболочкой
+    - не выводить из имени полномочия автономно определять цели человека
+    - не считать метафоры экзоскелета и операционной системы буквальным видом IWE
+  refreshCondition:
+    - граница системы перестала включать человека, правила, память и исполнительные средства
+    - имя стало обозначать несколько несовместимых видов систем в одном контексте
+
+repositoryNameCard:
+  nameCardId: NAME-REPO-IWE-001
+  governedValueRef: RootRepository@PersonalIWE
+  governingPatternRef: F.18
+  techLabel: iwe
+  expectedRemoteLabel: amorales/iwe
+  repositoryDescriptionEn: Personal Intellectual Work Environment — control center, protocols, and agent harness
+  currentCheckoutRef: /Users/amorales/iwe-platform
+  currentCheckoutStatus: transitionalUntilVerifiedRename
+  candidateSet: [iwe, personal-iwe, iwe-platform, iwe-control-center]
+  selectionRationale: >
+    iwe кратко называет корневой репозиторий и не утверждает, что одна Git-граница
+    совпадает со всей распределённой платформой или только с Control Center.
+  blockedUse:
+    - не считать репозиторий iwe всей IWE
+    - не считать принятие имени выполненной миграцией
+  refreshCondition:
+    - репозиторий перестал быть корневой точкой входа и владельцем локальных правил
+    - границы доступа или жизненного цикла потребовали выделить Control Center отдельно
+```
 
 ### Главный текущий результат
 
@@ -46,6 +120,8 @@ verification_class: problem-framing
 | Ссылка | Отдельный текущий вопрос | `EntityOfConcern` | Применённый `Solution` | Точный вид результата | Состояние | Получатель следующего хода |
 |---|---|---|---|---|---|---|
 | `P2S-IWE-001` | Как наблюдаемые проблемы P0–P2 приводят к выбираемым структурам и где сейчас останавливается архитектурная работа? | архитектурная трасса `P2S-IWE-001` | `C.32.P2S` | `ProblemToStructureArchitecturingFlowCard@Project` | действующая трасса рассуждения; не решение | `CHOICE-IWE-001` и `PAD-IWE-001` |
+| `NAME-IWE-001` | Как называть систему без подмены её вида метафорой одной части или свойства? | `PersonalIWE@amorales` | `F.18` | `NameCard` | `acceptedByOwner`: `IWE`, полное имя `Personal Intellectual Work Environment` | архитектурные описания, интерфейсы и рабочие продукты IWE |
+| `NAME-REPO-IWE-001` | Как называть корневой репозиторий, не принимая его за всю распределённую IWE? | `RootRepository@PersonalIWE` | `F.18` | `NameCard` | `acceptedByOwner`: `iwe`; физическая миграция ещё не выполнена | отдельная проверяемая миграция репозитория и ссылок |
 | `CHOICE-IWE-001` | Какой из уже сформированных вариантов A–E предпочтителен по объявленной основе сравнения и нужен ли ещё один поиск перед выбором? | выбор заявленного `DecisionSubject` над зафиксированным `OptionSet` A–E | `C.11` | `ChoiceResult` под явным `ChoiceRule` | аналитический исход `choose now: E`; не разрешение на изменение системы | `PAD-IWE-001` |
 | `ARCH-IWE-001` | Какие выбранные структуры составляют предлагаемую архитектуру личной IWE в заданном контексте? | `ArchitectureOf@Context` `ARCH-IWE-001` | `C.30` | `ArchitectureOf@Context` | предлагаемое архитектурное утверждение | `PAD-IWE-001` |
 | `PAD-IWE-001` | Какой архитектурный вариант принять для проекта и какие потери, последствия и условия пересмотра признать? | `ArchitectureDecisionRelation@Project` `PAD-IWE-001` | `C.32.PAD` | `ArchitectureDecisionRelation@Project` | **главное предложение, ожидает решения** | `amorales` |
@@ -130,7 +206,7 @@ PACK-Personal добавляет ещё одно обязательное огр
 
 | Объект | Вид | Что к нему относится | Что им не является |
 |---|---|---|---|
-| **Личная IWE** | работающая социотехническая система | человек, Pi agent, Aethon, Codex, репозитории, инструменты и реальные сеансы | AGENTS.md, диаграмма или набор сценариев |
+| **IWE — Personal Intellectual Work Environment** | работающая личная социотехническая система | человек, Pi agent, Aethon, Codex, репозитории, инструменты и реальные сеансы | AGENTS.md, диаграмма или набор сценариев |
 | **Локальный каркас практики IWE (LPF)** | локальный каркас принципов | повторяющиеся проблемные ситуации, способы решения, границы, режимы отказа, проверки и пересмотр | FPF Core, копия PACK или дерево файлов |
 | **Control Center** | управляющий слой IWE | каталог частей системы, профили управления, сборка контекста, межрепозиторные изменения, наблюдение и восстановление | LPF, очередной агент или четвёртый источник истины |
 | **Управляющая оболочка агента** | исполняемая часть одного запуска | отбор контекста, перехватчики, допуски, план вызовов, инструменты, восстановление и критерий завершения | один запрос или повторяющийся цикл |
@@ -159,8 +235,16 @@ PACK-Personal добавляет ещё одно обязательное огр
 
 Первичный описываемый объект:
 
-> **Личная IWE версии 2026-07-16 в контексте совместной и ограниченно автономной
+> **IWE — Personal Intellectual Work Environment — версии 2026-07-16 в контексте совместной и ограниченно автономной
 > интеллектуальной работы человека с Pi agent и Aethon.**
+
+Каноническое описание системы:
+
+> **Personal Intellectual Work Environment — a human-directed environment
+> coordinating agents, knowledge, protocols, and work execution.**
+
+Русская смысловая проекция: **личная среда интеллектуальной работы, координирующая
+человека, агентов, знания, протоколы и исполнение**.
 
 Вторичный предлагаемый объект, создаваемый только после принятия решения:
 
@@ -170,9 +254,10 @@ PACK-Personal добавляет ещё одно обязательное огр
 
 Третичный предлагаемый объект, связывающий правила и исполнение:
 
-> **Control Center IWE 0.1** — логический управляющий слой внутри `iwe-platform`,
-> координирующий соседние репозитории и исполнительные средства. Он не требует
-> создания отдельного четвёртого репозитория.
+> **Control Center IWE 0.1** — логический управляющий слой внутри корневого
+> репозитория `iwe`, координирующий соседние репозитории и исполнительные средства.
+> До физического переименования текущий checkout остаётся в `iwe-platform`; отдельный
+> четвёртый репозиторий не создаётся.
 
 ---
 
@@ -555,7 +640,7 @@ ProblemToStructureArchitecturingFlowCard@Project:
       - структура ограниченного повторяющегося цикла
     selectedStructureRefs:
       - предложенный LPF личной IWE
-      - предложенный Control Center внутри iwe-platform
+      - предложенный Control Center внутри корневого репозитория iwe
       - одиночный запуск с внешними исполняемыми границами
       - независимая проверка и обязательное решение человека
       - необязательный ограниченный цикл только после доказанного одиночного запуска
@@ -846,7 +931,7 @@ ArchitectureDecisionRelation@Project:
       decisionEffect: локализовать повторяющиеся правила, границы делегирования и пересмотр
       governingPatternRef: E.4.PFAD
     - structureKindRef: управляющая структура рабочей системы
-      selectedStructureRef: Control Center внутри iwe-platform
+      selectedStructureRef: Control Center внутри корневого репозитория iwe
       decisionEffect: согласовывать контекст, полномочия, репозитории и восстановление,
         не создавая новый источник истины
       governingPatternRef: C.30
@@ -894,7 +979,7 @@ ArchitectureDecisionRelation@Project:
   consequenceRows:
     - до принятия PFAD не создаётся заявленное издание локального каркаса
     - до исправления P0 не включается автономное повторение
-    - Control Center остаётся логическим слоем внутри iwe-platform до отдельного
+    - Control Center остаётся логическим слоем внутри корневого репозитория iwe до отдельного
       решения о физическом разделении
     - каждая обязательная граница имеет внешний механизм либо явное решение человека
     - эффективность проверяется отдельными результатами оценки, а не самим решением
@@ -1398,15 +1483,17 @@ refresh_when: "появились первичные исследования и
 
 ### 6.2 Control Center как управляющий слой, а не новый источник истины
 
-Control Center следует развивать логически внутри `iwe-platform`. Отдельный четвёртый
-репозиторий сейчас не нужен: он увеличит число переходов, но не добавит новой границы
-доступа или независимого жизненного цикла.
+Control Center следует развивать логически внутри корневого репозитория `iwe`.
+Текущий checkout `/Users/amorales/iwe-platform` является переходным физическим именем
+до отдельной проверяемой миграции. Четвёртый репозиторий сейчас не нужен: он увеличит
+число переходов, но не добавит новой границы доступа или независимого жизненного
+цикла.
 
 Минимальные рабочие продукты управляющего слоя:
 
 | Рабочий продукт | Содержание | Владелец истины |
 |---|---|---|
-| **Каталог экосистемы** (`EcosystemCatalog`) | репозитории, их роли, владельцы, доступы, команды проверки и источники фактического состояния | `iwe-platform` хранит каталог; каждый репозиторий подтверждает собственные сведения |
+| **Каталог экосистемы** (`EcosystemCatalog`) | репозитории, их роли, владельцы, доступы, команды проверки и источники фактического состояния | корневой репозиторий `iwe` хранит каталог; каждый репозиторий подтверждает собственные сведения |
 | **Профиль управления** (`ControlProfile`) | разрешённые чтение, изменение, отправка, публикация, виды обязательного решения человека | LPF и локальные правила безопасности |
 | **Снимок экосистемы** (`EcosystemSnapshot`) | ветка, HEAD, расхождение с удалённым хранилищем, изменённые пути, доступность зависимостей | фактическое состояние Git и инструментов |
 | **Согласованный набор изменений** (`CrossRepoChangeSet`) | цель, затрагиваемые репозитории, порядок, проверки, промежуточные состояния, откат и итог | конкретная работа и её журнал решений |
@@ -1739,10 +1826,15 @@ next_action: human_review | regenerate | stop
 Ближайшая целевая схема сохраняет три репозитория:
 
 ```text
-~/iwe-platform/       # LPF, Control Center, правила, сценарии, перехватчики и тесты
+~/iwe/                # LPF, Control Center, правила, сценарии, перехватчики и тесты
 ~/ds-strategy/        # цели, планы, решения и состояние РП
 ~/ds-knowledge-index/ # входящие, записи, черновики и публикации
 ```
+
+Первая строка показывает принятое целевое имя. До выполнения отдельной миграции её
+фактический локальный путь — `/Users/amorales/iwe-platform`; это переходное различие
+должно оставаться видимым в сценариях и проверках, чтобы смена имени не выдавала
+желаемое состояние за развёрнутое.
 
 Control Center ведёт их каталог, общий снимок и `CrossRepoChangeSet`. Внешние
 FPF/PACK/FMT остаются отдельными закреплёнными зависимостями.
@@ -2298,8 +2390,9 @@ U.WorkPlan:
 
 1. Исходные численные наблюдения раздела 3 относятся к аудиту 2026-07-14 и не
    считаются текущим состоянием без повторного измерения.
-2. Анализ FPF относится к приложенному `FPF-Spec.md` в состоянии репозитория
-   `iwe-platform` на 2026-07-17.
+2. Анализ FPF относится к приложенному `FPF-Spec.md` в состоянии текущего checkout
+   `/Users/amorales/iwe-platform` на 2026-07-17; принятое целевое имя корневого
+   репозитория — `iwe`.
 3. Оба PACK проверены напрямую и закреплены коммитами, но это не превращает их в
    допущенные DPF. Они используются как смешанные пакеты источников.
 4. В PACK-Personal только 12 файлов в разделе SoTA при нескольких сотнях материалов;
