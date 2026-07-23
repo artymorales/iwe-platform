@@ -3,7 +3,7 @@ type: composite-decision-support-carrier
 wp: WP-43
 status: proposed_for_human_decision
 created: 2026-07-14
-updated: 2026-07-20
+updated: 2026-07-23
 bounded_context: personal intellectual work with AI agents
 primary_current_result_ref: PAD-IWE-001
 primary_current_result_kind: ArchitectureDecisionRelation@Project
@@ -119,6 +119,7 @@ repositoryNameCard:
 
 | Ссылка | Отдельный текущий вопрос | `EntityOfConcern` | Применённый `Solution` | Точный вид результата | Состояние | Получатель следующего хода |
 |---|---|---|---|---|---|---|
+| [`BOUNDARY-HARNESS-001`](WP-43-AI-HARNESS-SYSTEM-BOUNDARY.md) | Где проходит минимальная физическая граница текущего Agent Harness, какие внешние изменения от него нужны и какие две внутренние связи существенны? | `AgentHarness@current-deployment` | `SYSTEM-IN-CONTEXT`, A.1, B.1.2, A.12 и C.30 | рабочая гипотеза границы системы | предложена владельцу; ограничивает прежнюю шестимодульную целевую декомпозицию | `amorales`; при принятии — пересмотр `ARCH-IWE-001` и `PAD-IWE-001` до реализации |
 | `P2S-IWE-001` | Как наблюдаемые проблемы P0–P2 приводят к выбираемым структурам и где сейчас останавливается архитектурная работа? | архитектурная трасса `P2S-IWE-001` | `C.32.P2S` | `ProblemToStructureArchitecturingFlowCard@Project` | действующая трасса рассуждения; не решение | `CHOICE-IWE-001` и `PAD-IWE-001` |
 | `NAME-IWE-001` | Как называть систему без подмены её вида метафорой одной части или свойства? | `PersonalIWE@amorales` | `F.18` | `NameCard` | `acceptedByOwner`: `IWE`, полное имя `Personal Intellectual Work Environment` | архитектурные описания, интерфейсы и рабочие продукты IWE |
 | `NAME-REPO-IWE-001` | Как называть корневой репозиторий, не принимая его за всю распределённую IWE? | `RootRepository@PersonalIWE` | `F.18` | `NameCard` | `acceptedByOwner`: `iwe`; физическая миграция ещё не выполнена | отдельная проверяемая миграция репозитория и ссылок |
