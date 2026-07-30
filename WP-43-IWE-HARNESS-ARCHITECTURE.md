@@ -3,7 +3,7 @@ type: composite-decision-support-carrier
 wp: WP-43
 status: proposed_for_human_decision
 created: 2026-07-14
-updated: 2026-07-23
+updated: 2026-07-30
 bounded_context: personal intellectual work with AI agents
 primary_current_result_ref: PAD-IWE-001
 primary_current_result_kind: ArchitectureDecisionRelation@Project
@@ -120,6 +120,7 @@ repositoryNameCard:
 | Ссылка | Отдельный текущий вопрос | `EntityOfConcern` | Применённый `Solution` | Точный вид результата | Состояние | Получатель следующего хода |
 |---|---|---|---|---|---|---|
 | [`BOUNDARY-HARNESS-001`](WP-43-AI-HARNESS-SYSTEM-BOUNDARY.md) | Где проходит минимальная физическая граница текущего Agent Harness, какие внешние изменения от него нужны и какие две внутренние связи существенны? | `AgentHarness@current-deployment` | `SYSTEM-IN-CONTEXT`, A.1, B.1.2, A.12 и C.30 | рабочая гипотеза границы системы | предложена владельцу; ограничивает прежнюю шестимодульную целевую декомпозицию | `amorales`; при принятии — пересмотр `ARCH-IWE-001` и `PAD-IWE-001` до реализации |
+| `PC-IWE-HARNESS-001` | Какое problem-side давление делает текущую IWE Harness необъяснимой и неуправляемой для владельца и агента? | операционная поверхность текущей IWE Harness: relation runtime с активными внешними артефактами | `C.22.2 — ProblemCard@Context` | Thin `ProblemCard@Context` | `acceptedByOwner`; не решение и не Work entry | `P2S-IWE-001` |
 | `P2S-IWE-001` | Как наблюдаемые проблемы P0–P2 приводят к выбираемым структурам и где сейчас останавливается архитектурная работа? | архитектурная трасса `P2S-IWE-001` | `C.32.P2S` | `ProblemToStructureArchitecturingFlowCard@Project` | действующая трасса рассуждения; не решение | `CHOICE-IWE-001` и `PAD-IWE-001` |
 | `NAME-IWE-001` | Как называть систему без подмены её вида метафорой одной части или свойства? | `PersonalIWE@amorales` | `F.18` | `NameCard` | `acceptedByOwner`: `IWE`, полное имя `Personal Intellectual Work Environment` | архитектурные описания, интерфейсы и рабочие продукты IWE |
 | `NAME-REPO-IWE-001` | Как называть корневой репозиторий, не принимая его за всю распределённую IWE? | `RootRepository@PersonalIWE` | `F.18` | `NameCard` | `acceptedByOwner`: `iwe`; физическая миграция ещё не выполнена | отдельная проверяемая миграция репозитория и ссылок |
@@ -135,7 +136,7 @@ repositoryNameCard:
 ### Трасса рассуждения и передачи
 
 ```text
-наблюдения P0–P2
+`PC-IWE-HARNESS-001` + наблюдения P0–P2
   → P2S-IWE-001: проблемное давление связано с неизвестными и предлагаемыми структурами
   → CHOICE-IWE-001: среди зафиксированных A–E выбран E на объявленной основе
   → PAD-IWE-001: предложение владельцу принять архитектурный вариант и его потери
@@ -614,6 +615,9 @@ ProblemToStructureArchitecturingFlowCard@Project:
     pressureKind: несоответствие обещанного управления фактическому исполнению,
       смешение видов результатов и риск размножения ошибок повторяющимся циклом
     problemPressureSignalRefs:
+      - PC-IWE-HARNESS-001: принятая владельцем Thin ProblemCard об утрате
+        смысла и управляемости операционной поверхности IWE Harness;
+        `ds-strategy/current/problem-card-iwe-harness-2026-07-30.md`
       - P0: закрытие может зафиксировать чужое или незавершённое состояние
       - P0: G7 может сообщить pass без подтверждённой отправки
       - P0: сценарий закрытия не выполняет обещанный протокол
