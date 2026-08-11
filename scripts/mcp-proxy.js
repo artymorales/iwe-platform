@@ -155,9 +155,9 @@ rl.on("line", async (line) => {
   line = line.trim();
   if (!line) return;
 
+  let reqId;
   try {
     // Extract id before async to track across errors
-    let reqId;
     try {
       const parsed = JSON.parse(line);
       reqId = parsed.id;
