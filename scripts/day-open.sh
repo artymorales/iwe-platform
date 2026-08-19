@@ -67,6 +67,11 @@ HAS_CLOSE_COMMIT=false
 for repo in "$IWE_DIR" "$STRATEGY_DIR" "$KNOWLEDGE_DIR"; do
   if [ -d "$repo/.git" ]; then
     CLOSE_LOG=$(cd "$repo" && git log --since="${PREV_DATE}T00:00" --until="${DATE}T00:00" --oneline --grep="day-close\|close-gate" 2>/dev/null | head -1 || true)
+    # Ретроспективный Close может быть закоммичен позже календарного окна.
+    # Явный датированный marker является более сильным свидетельством.
+    if [ -z "$CLOSE_LOG" ]; then
+      CLOSE_LOG=$(cd "$repo" && git log --all --oneline --grep="close-gate: ${PREV_DATE}" 2>/dev/null | head -1 || true)
+    fi
     if [ -n "$CLOSE_LOG" ]; then
       HAS_CLOSE_COMMIT=true
       echo "  ✓ Close найден в $(basename "$repo"): ${CLOSE_LOG:0:60}"
