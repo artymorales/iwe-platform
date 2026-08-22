@@ -1,6 +1,9 @@
 ---
-type: template
-used-by: day-open.sh
+type: day-plan
+date: {{DATE}}
+week: {{WEEK_NUM}}
+status: open
+created: {{DATE}}
 source: FMT v0.34.1 (адаптирован)
 ---
 

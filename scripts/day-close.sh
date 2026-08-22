@@ -17,12 +17,11 @@ echo ""
 
 # 1. Проверка: есть ли заметка дня?
 PREV_DATE_OVERRIDE="${OVERRIDE_DATE:-}"
-DAYNOTE="$STRATEGY_DIR/current/day-${DATE}.md"
+DAYNOTE="$STRATEGY_DIR/current/dayplan-${DATE}.md"
 if [ ! -f "$DAYNOTE" ]; then
-  echo "  ⚠ Нет заметки дня. Создаю..."
-  echo "  · Работа была без day-open?"
+  echo "  ⚠ DayPlan за $DATE отсутствует — работа была без Day Open"
 else
-  echo "  ✓ Заметка дня: $(basename "$DAYNOTE")"
+  echo "  ✓ DayPlan: $(basename "$DAYNOTE")"
 fi
 echo ""
 

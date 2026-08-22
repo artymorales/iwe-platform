@@ -207,7 +207,8 @@ fi
 
 WP_REGISTRY="$STRATEGY_DIR/docs/WP-REGISTRY.md"
 if [ -f "$WP_REGISTRY" ]; then
-  ACTIVE_WP=$(grep -c '🔄' "$WP_REGISTRY" 2>/dev/null || echo "0")
+  ACTIVE_WP=$(grep -c '🔄' "$WP_REGISTRY" 2>/dev/null || true)
+  ACTIVE_WP=${ACTIVE_WP:-0}
   echo "  WP-REGISTRY: активно $(echo "$ACTIVE_WP" | tr -d ' ') РП"
 else
   echo "  WP-REGISTRY: не найден"
@@ -247,9 +248,17 @@ echo ""
 echo "--- Study Pipeline: очередь материалов ---"
 READING_LIST="$KNOWLEDGE_DIR/inbox/reading-list.md"
 if [ -f "$READING_LIST" ]; then
-  # Извлекаем строки очереди (⏳ queue)
-  QUEUE_COUNT=$(grep -c '⏳ queue' "$READING_LIST" 2>/dev/null || true)
-  QUEUE_COUNT=${QUEUE_COUNT:-0}
+  # Берём только строки таблицы в секции «Очередь», исключая примеры из документации.
+  QUEUE_ROWS=$(awk '
+    /^## Очередь/ { in_queue=1; next }
+    /^## Архив/ { in_queue=0 }
+    in_queue && /^\| ⏳ queue \|/ { print }
+  ' "$READING_LIST")
+  if [ -n "$QUEUE_ROWS" ]; then
+    QUEUE_COUNT=$(printf '%s\n' "$QUEUE_ROWS" | wc -l | tr -d ' ')
+  else
+    QUEUE_COUNT=0
+  fi
   echo "  Материалов в очереди: $QUEUE_COUNT"
 
   if [ "$QUEUE_COUNT" -gt 0 ]; then
@@ -257,7 +266,7 @@ if [ -f "$READING_LIST" ]; then
     echo "  Доступные материалы для слота «Мышление письмом»:"
     echo ""
     # Парсим и показываем таблицу (колонки: Статус, P, Название, Домен, Источник, Время, TTL)
-    grep '⏳ queue' "$READING_LIST" | while IFS='|' read -r _ status pri title domain source time added ttl rest; do
+    printf '%s\n' "$QUEUE_ROWS" | while IFS='|' read -r _ status pri title domain source time added ttl rest; do
       pri=$(echo "$pri" | xargs)
       title=$(echo "$title" | xargs)
       domain=$(echo "$domain" | xargs)
@@ -271,7 +280,7 @@ if [ -f "$READING_LIST" ]; then
 
     # Авто-предложение для DayPlan: если TTL истекает на этой неделе → пометить 🔴
     CURRENT_WEEK="W$WEEK_NUM"
-    URGENT=$(grep '⏳ queue' "$READING_LIST" | grep -c "${CURRENT_WEEK}" || true)
+    URGENT=$(printf '%s\n' "$QUEUE_ROWS" | grep -c "${CURRENT_WEEK}" || true)
     URGENT=${URGENT:-0}
     if [ "$URGENT" -gt 0 ]; then
       echo "  ⚠ ${URGENT} материал(ов) с TTL на этой неделе (${CURRENT_WEEK}) — приоритет для сегодняшнего слота"
